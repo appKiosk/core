@@ -25,6 +25,18 @@ This repository is the core artifacts and services of a plugin-based app platfor
     - Left Nav
   - Shell UI that utilizes Core UI components
 
+## Workspace Packages
+
+The following Nx workspace packages are scaffolded under `packages/`:
+
+- `@org/registry` (`packages/registry`)
+- `@org/gateway` (`packages/gateway`)
+- `@org/policy` (`packages/policy`)
+- `@org/entitlement` (`packages/entitlement`)
+- `@org/validation` (`packages/validation`)
+- `@org/audit` (`packages/audit`)
+- `@org/host-shell` (`packages/host-shell`)
+
 ## Plugins
 
 - Each plugin will be an external nx monorepo

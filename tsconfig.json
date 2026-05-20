@@ -2,5 +2,27 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-  "references": []
+  "references": [
+    {
+      "path": "./packages/registry"
+    },
+    {
+      "path": "./packages/gateway"
+    },
+    {
+      "path": "./packages/policy"
+    },
+    {
+      "path": "./packages/entitlement"
+    },
+    {
+      "path": "./packages/validation"
+    },
+    {
+      "path": "./packages/audit"
+    },
+    {
+      "path": "./packages/host-shell"
+    }
+  ]
 }
