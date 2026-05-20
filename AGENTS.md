@@ -21,3 +21,30 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
+## Repository Focus
+
+- This repository provides the core platform for a plugin-based architecture. Start with [README.md](README.md) for domain context and goals.
+- The workspace currently has no generated projects under `packages/*`; check project inventory first before running targets.
+
+## First Commands
+
+- Use `npm exec nx show projects` to confirm available projects.
+- Use `npm exec nx graph` to inspect dependencies once projects are added.
+- For task execution, use Nx via package manager prefix (for example `npm exec nx run-many -t lint test build typecheck`).
+
+## Quality Gates
+
+- TypeScript is strict. See [tsconfig.base.json](tsconfig.base.json).
+- Formatting uses single quotes. See [.prettierrc](.prettierrc).
+- CI behavior and standard checks are defined in [.github/workflows/ci.yml](.github/workflows/ci.yml).
+
+## Agent Tooling In This Repo
+
+- Repo skills and prompts live in [.github/skills](.github/skills), [.github/prompts](.github/prompts), and [.github/agents](.github/agents).
+- Nx MCP is configured in [opencode.json](opencode.json).
+
+## Pitfalls And Conventions
+
+- Follow monorepo single-version policy and ESM/CJS consistency guidance in [CLAUDE.md](CLAUDE.md).
+- When adding or wiring workspace package dependencies, use the workflow in [.github/skills/link-workspace-packages/SKILL.md](.github/skills/link-workspace-packages/SKILL.md).
