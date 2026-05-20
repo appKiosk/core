@@ -11,32 +11,34 @@ This repository is the core artifacts and services of a plugin-based app platfor
 7. Pugins expose policies enforced so core can enforce those policies
 
 ## Repo Setup
+
 - This Repo is kept in an nx monorepo to allow for quick development and shared libraries
 - This repo is responsible for core responsibilities such as
-    - Authentication/authorization framework
-    - Plugin registry
-    - Inter-plugin communication
-    - Plugin dependency graph for knowledge graphs, dependency manifests etc
-    - MCP tools for allowing agents to discover architectural information across plugins.
-    - Core UI components to be published for use in external plugins
-        - Top Nav
-        - Footer
-        - Left Nav
-    - Shell UI that utilizes Core UI components
+  - Authentication/authorization framework
+  - Plugin registry
+  - Inter-plugin communication
+  - Plugin dependency graph for knowledge graphs, dependency manifests etc
+  - MCP tools for allowing agents to discover architectural information across plugins.
+  - Core UI components to be published for use in external plugins
+    - Top Nav
+    - Footer
+    - Left Nav
+  - Shell UI that utilizes Core UI components
 
 ## Plugins
+
 - Each plugin will be an external nx monorepo
 - Plugins will contain a UI that imports and uses the core UI components
 - Plugins may contain backend services to support frontend operation
-    - If backend services are added, contracts will be enforced via plugin SDK
+  - If backend services are added, contracts will be enforced via plugin SDK
 - Plugins will "register" with core by providing
-    - Plugin ID
-    - Plugin Name(display name)
-    - URL to Plugin UI
-    - URL to plugin icon
-    - permissions added and enforced by plugin(namespaced to plugin)
-    - policies defined by plugin
-    - url to SDK documentation for contract alignment.
+  - Plugin ID
+  - Plugin Name(display name)
+  - URL to Plugin UI
+  - URL to plugin icon
+  - permissions added and enforced by plugin(namespaced to plugin)
+  - policies defined by plugin
+  - url to SDK documentation for contract alignment.
 
 ## Architecture Documentation
 
@@ -44,6 +46,3 @@ This repository is the core artifacts and services of a plugin-based app platfor
 - C4 Context: [docs/architecture/c4-context.md](docs/architecture/c4-context.md)
 - C4 Container: [docs/architecture/c4-container.md](docs/architecture/c4-container.md)
 - ADR index: [docs/architecture/adrs/README.md](docs/architecture/adrs/README.md)
-
-
-
