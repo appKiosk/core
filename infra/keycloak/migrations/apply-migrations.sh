@@ -46,7 +46,7 @@ set_client_secret() {
     return
   fi
 
-  /opt/keycloak/bin/kcadm.sh update "clients/${client_internal_id}/client-secret" -r "${realm_name}" -s "value=${KEYCLOAK_CLIENT_SECRET}" >/dev/null
+  /opt/keycloak/bin/kcadm.sh create "clients/${client_internal_id}/client-secret" -r "${realm_name}" -s "value=${KEYCLOAK_CLIENT_SECRET}" >/dev/null
 }
 
 if ! ls "${MIGRATIONS_DIR}"/*.realm.json >/dev/null 2>&1; then

@@ -12,7 +12,7 @@
     "test": "npm exec nx -- run-many -t test",
     "build": "npm exec nx -- run-many -t build",
     "typecheck": "npm exec nx -- run-many -t typecheck",
-    "dev:keycloak:up": "docker compose -f docker-compose.yml up -d keycloak && docker compose -f docker-compose.yml run --rm keycloak-migrate",
+    "dev:keycloak:up": "docker compose -f docker-compose.yml up -d keycloak && docker compose -f docker-compose.yml up keycloak-migrate",
     "dev:keycloak:down": "docker compose -f docker-compose.yml down -v",
     "dev:keycloak:logs": "docker compose -f docker-compose.yml logs -f keycloak",
     "check:lockfile-sync": "npx --yes npm@10.8.2 install --package-lock-only --ignore-scripts --no-audit --no-fund && git diff --exit-code -- package-lock.json",
