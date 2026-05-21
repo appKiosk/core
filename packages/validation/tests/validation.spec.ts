@@ -22,7 +22,7 @@ describe('parseRealmMigrationFileName', () => {
 
   it('rejects invalid migration names', () => {
     expect(() => parseRealmMigrationFileName('core-users.json')).toThrow(
-      'Invalid migration file name'
+      'Invalid migration file name',
     );
   });
 });
@@ -57,7 +57,7 @@ describe('buildRealmMigrationPlan', () => {
           filePath: 'infra/keycloak/migrations/001-core-services.realm.json',
           realm: 'core-services',
         },
-      ])
+      ]),
     ).toThrow('Duplicate migration order detected: 1.');
   });
 
@@ -69,10 +69,11 @@ describe('buildRealmMigrationPlan', () => {
           realm: 'core-users',
         },
         {
-          filePath: 'infra/keycloak/migrations/002-core-users-update.realm.json',
+          filePath:
+            'infra/keycloak/migrations/002-core-users-update.realm.json',
           realm: 'core-users',
         },
-      ])
+      ]),
     ).toThrow('Duplicate realm migration detected for realm "core-users".');
   });
 });

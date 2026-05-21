@@ -20,7 +20,7 @@ export function parseRealmMigrationFileName(fileName: string): {
 
   if (!match) {
     throw new Error(
-      `Invalid migration file name "${fileName}". Expected format NNN-name.realm.json.`
+      `Invalid migration file name "${fileName}". Expected format NNN-name.realm.json.`,
     );
   }
 
@@ -31,7 +31,7 @@ export function parseRealmMigrationFileName(fileName: string): {
 }
 
 export function buildRealmMigrationPlan(
-  inputs: RealmMigrationInput[]
+  inputs: RealmMigrationInput[],
 ): RealmMigrationPlanItem[] {
   const seenOrders = new Set<number>();
   const seenRealms = new Set<string>();
@@ -45,7 +45,9 @@ export function buildRealmMigrationPlan(
     }
 
     if (seenRealms.has(input.realm)) {
-      throw new Error(`Duplicate realm migration detected for realm "${input.realm}".`);
+      throw new Error(
+        `Duplicate realm migration detected for realm "${input.realm}".`,
+      );
     }
 
     seenOrders.add(order);
