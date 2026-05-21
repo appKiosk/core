@@ -37,8 +37,15 @@ export function buildRealmMigrationPlan(
   const seenRealms = new Set<string>();
 
   const plan = inputs.map((input) => {
-    const fileName = input.filePath.split('/').pop() ?? input.filePath;
-    const { order } = parseRealmMigrationFileName(fileName);
+    const normalizedPath = input.filePath.replace(/\\/g, '/');
+    const fileName = normalizedPath.split('/').pop() ?? normalizedPath;
+    const { order, name } = parseRealmMigrationFileName(fileName);
+
+    if (input.realm !== name) {
+      throw new Error(
+        `Realm mismatch for migration "${fileName}": expected "${name}", received "${input.realm}".`,
+      );
+    }
 
     if (seenOrders.has(order)) {
       throw new Error(`Duplicate migration order detected: ${String(order)}.`);

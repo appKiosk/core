@@ -23,7 +23,6 @@
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
-      "secret": "replace-me",
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": true

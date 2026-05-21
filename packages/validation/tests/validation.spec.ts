@@ -46,6 +46,17 @@ describe('buildRealmMigrationPlan', () => {
     ]);
   });
 
+  it('supports Windows-style migration paths', () => {
+    const plan = buildRealmMigrationPlan([
+      {
+        filePath: 'infra\\keycloak\\migrations\\001-core-users.realm.json',
+        realm: 'core-users',
+      },
+    ]);
+
+    expect(plan[0]?.fileName).toBe('001-core-users.realm.json');
+  });
+
   it('rejects duplicate migration orders', () => {
     expect(() =>
       buildRealmMigrationPlan([
@@ -69,11 +80,23 @@ describe('buildRealmMigrationPlan', () => {
           realm: 'core-users',
         },
         {
-          filePath:
-            'infra/keycloak/migrations/002-core-users-update.realm.json',
+          filePath: 'infra/keycloak/migrations/002-core-users.realm.json',
           realm: 'core-users',
         },
       ]),
     ).toThrow('Duplicate realm migration detected for realm "core-users".');
+  });
+
+  it('rejects filename and realm mismatches', () => {
+    expect(() =>
+      buildRealmMigrationPlan([
+        {
+          filePath: 'infra/keycloak/migrations/001-core-users.realm.json',
+          realm: 'core-services',
+        },
+      ]),
+    ).toThrow(
+      'Realm mismatch for migration "001-core-users.realm.json": expected "core-users", received "core-services".',
+    );
   });
 });
