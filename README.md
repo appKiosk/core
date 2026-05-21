@@ -25,20 +25,38 @@ This repository is the core artifacts and services of a plugin-based app platfor
     - Left Nav
   - Shell UI that utilizes Core UI components
 
-## Local Environment Templates
+## Local Environment Template
 
-Use the root environment templates when setting up local development values:
+Use the root environment template when setting up local development values:
 
-- Copy `.env.example` to `.env.local`.
-- Optionally copy selected example overrides from `.env.local.example` into `.env.local` (for example, local secrets and machine-specific values).
-- Keep `.env.local` untracked; only commit template updates.
+- Copy `.env.example` to `.env`.
+- Use `.env` for local overrides (for example, local secrets and machine-specific values).
+- Keep `.env` untracked; only commit template updates.
 
-The templates define baseline variables for:
+The template defines baseline variables for:
 
 - Core service endpoints (`CORE_*_API_URL`)
 - Gateway and host shell URLs
 - Keycloak realm and client configuration
 - Tenant and runtime tuning defaults
+
+## Local Keycloak Bootstrap
+
+Issue #31 provisions local Keycloak realms for developer environments.
+
+- Compose stack: `docker-compose.yml`
+- Migration assets: `infra/keycloak/migrations`
+- Migration runner: `infra/keycloak/migrations/apply-migrations.sh`
+
+Use the root scripts:
+
+```bash
+npm run dev:keycloak:up
+npm run dev:keycloak:logs
+npm run dev:keycloak:down
+```
+
+The bootstrap process applies ordered `*.realm.json` migration files and updates existing realms when rerun.
 
 ## Workspace Packages
 

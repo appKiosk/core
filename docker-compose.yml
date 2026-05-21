@@ -1,0 +1,45 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2
+    container_name: core-keycloak
+    command:
+      - start-dev
+      - --http-port=8080
+      - --health-enabled=true
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD?Set KEYCLOAK_ADMIN_PASSWORD in .env}
+    ports:
+      - '${CORE_KEYCLOAK_PORT:-8081}:8080'
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/keycloak/bin/kcadm.sh config credentials --server http://127.0.0.1:8080 --realm master --user "$KEYCLOAK_ADMIN" --password "$KEYCLOAK_ADMIN_PASSWORD" >/dev/null 2>&1
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 20s
+
+  keycloak-migrate:
+    image: quay.io/keycloak/keycloak:26.2
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD?Set KEYCLOAK_ADMIN_PASSWORD in .env}
+      KEYCLOAK_CLIENT_SECRET: ${CORE_KEYCLOAK_CLIENT_SECRET:-}
+      KEYCLOAK_LOGIN_MAX_ATTEMPTS: ${KEYCLOAK_LOGIN_MAX_ATTEMPTS:-30}
+      KEYCLOAK_LOGIN_RETRY_DELAY_SECONDS: ${KEYCLOAK_LOGIN_RETRY_DELAY_SECONDS:-2}
+    volumes:
+      - ./infra/keycloak/migrations:/opt/keycloak-data/migrations:ro
+    entrypoint:
+      - /bin/sh
+      - /opt/keycloak-data/migrations/apply-migrations.sh
+    restart: 'no'
+
+volumes:
+  keycloak_data:
