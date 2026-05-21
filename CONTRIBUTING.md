@@ -54,6 +54,32 @@ Workspace dependency policy:
 - Keep npm dependency versions in the root `package.json`.
 - Do not add per-package `dependencies` or `devDependencies` under `packages/*`.
 
+## Architecture Decision Linking Rules
+
+Use these rules for any change that introduces or modifies architecture-level behavior.
+
+### When ADR links are required
+
+- If implementation follows an existing decision, link the relevant ADR(s) in the issue and PR.
+- If implementation changes or supersedes an existing decision, create a new ADR and link both the superseded and superseding ADRs.
+- If no ADR exists for a new cross-cutting or irreversible decision, create one before merge.
+
+### Required links in GitHub issues and PRs
+
+- Issue body or issue comment:
+  - Link to affected ADR(s), or state `No ADR impact`.
+  - For new ADRs, include the proposed ADR path (for example `docs/architecture/adrs/ADR-0010-sample.md`).
+- PR description:
+  - Include an `Architecture Decision Links` section.
+  - List affected ADR links, or state `No ADR impact`.
+  - When adding a new ADR, include `Supersedes:` and/or `Superseded by:` references where applicable.
+
+### Repository updates required when adding ADRs
+
+- Add the ADR file under `docs/architecture/adrs/` with the next sequence number.
+- Update `docs/architecture/adrs/README.md` ADR index in the same PR.
+- Update `docs/architecture/decision-matrix.md` if decision coverage changes.
+
 ## Validation Commands
 
 Run the baseline checks before pushing:
