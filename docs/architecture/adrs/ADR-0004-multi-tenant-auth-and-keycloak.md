@@ -26,6 +26,6 @@ The platform requires tenant-aware routing, user authentication, and service-to-
 
 ## Implementation Notes
 
-- Local development provisioning uses `docker-compose.keycloak.yml`.
+- Local development provisioning uses `docker-compose.yml`.
 - User and service realms are bootstrapped via ordered migration files in `infra/keycloak/migrations`.
 - Migration execution is idempotent for local environments through `apply-migrations.sh`, enabling repeatable bootstrap.

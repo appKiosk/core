@@ -44,7 +44,7 @@ The templates define baseline variables for:
 
 Issue #31 provisions local Keycloak realms for developer environments.
 
-- Compose stack: `docker-compose.keycloak.yml`
+- Compose stack: `docker-compose.yml`
 - Migration assets: `infra/keycloak/migrations`
 - Migration runner: `infra/keycloak/migrations/apply-migrations.sh`
 
