@@ -74,6 +74,7 @@ The following Nx workspace packages are scaffolded under `packages/`:
 - C4 Context: [docs/architecture/c4-context.md](docs/architecture/c4-context.md)
 - C4 Container: [docs/architecture/c4-container.md](docs/architecture/c4-container.md)
 - ADR index: [docs/architecture/adrs/README.md](docs/architecture/adrs/README.md)
+- Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Quality Baseline
 
