@@ -29,9 +29,9 @@ This repository is the core artifacts and services of a plugin-based app platfor
 
 Use the root environment template when setting up local development values:
 
-- Copy `.env.example` to `.env.local`.
-- Use `.env.local` for local overrides (for example, local secrets and machine-specific values).
-- Keep `.env.local` untracked; only commit template updates.
+- Copy `.env.example` to `.env`.
+- Use `.env` for local overrides (for example, local secrets and machine-specific values).
+- Keep `.env` untracked; only commit template updates.
 
 The template defines baseline variables for:
 
