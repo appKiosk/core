@@ -98,7 +98,7 @@ npm run typecheck
 
 GitHub Actions runs a baseline Nx affected suite for pull requests and pushes to `main`:
 
-- `format:check` scoped to the computed base SHA
+- `format:check` scoped to the computed base and head SHAs
 - `lint`, `test`, and `build` using `nx affected`
 
 This keeps CI focused on impacted projects while preserving workspace-wide quality gates.
