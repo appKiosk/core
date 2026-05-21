@@ -47,3 +47,9 @@ Thumbs.db
 .claude/settings.local.json
 .nx/polygraph
 .nx/self-healing
+
+# local environment files
+.env
+.env.*
+!.env.example
+!.env.local.example

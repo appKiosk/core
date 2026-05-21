@@ -25,6 +25,21 @@ This repository is the core artifacts and services of a plugin-based app platfor
     - Left Nav
   - Shell UI that utilizes Core UI components
 
+## Local Environment Templates
+
+Use the root environment templates when setting up local development values:
+
+- Copy `.env.example` to `.env.local`.
+- Optionally merge defaults from `.env.local.example` for machine-specific overrides.
+- Keep `.env.local` untracked; only commit template updates.
+
+The templates define baseline variables for:
+
+- Core service endpoints (`CORE_*_API_URL`)
+- Gateway and host shell URLs
+- Keycloak realm and client configuration
+- Tenant and runtime tuning defaults
+
 ## Workspace Packages
 
 The following Nx workspace packages are scaffolded under `packages/`:
