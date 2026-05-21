@@ -22,7 +22,7 @@ This matrix captures the finalized platform decisions for the appKiosk core POC.
 | Gateway product recommendation | Envoy Gateway using Kubernetes Gateway API, aligned with Knative deployments        |
 | Gateway extensibility model    | Custom logic in core services/ext-auth integration, minimize gateway vendor lock-in |
 | Auth provider                  | Keycloak                                                                            |
-| Realm strategy                 | Two realms: user tokens realm + service tokens realm                                |
+| Realm strategy                 | Two realms: user tokens realm + service tokens realm, provisioned via ordered realm migrations |
 | Plugin admin auth              | OAuth client credentials, one client per plugin per environment                     |
 | Credential scope model         | Granular API scopes and plugin-bound credentials                                    |
 | Credential rotation            | Supported with overlap window (no downtime)                                         |

@@ -1,0 +1,40 @@
+{
+  "realm": "core-users",
+  "enabled": true,
+  "displayName": "Core Users Realm",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "resetPasswordAllowed": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "core-admin"
+      },
+      {
+        "name": "plugin-admin"
+      },
+      {
+        "name": "tenant-user"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "core-local-dev",
+      "name": "Core Local Development Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "replace-me",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:4200/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200"
+      ]
+    }
+  ]
+}

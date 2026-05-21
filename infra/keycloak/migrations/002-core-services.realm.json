@@ -1,0 +1,32 @@
+{
+  "realm": "core-services",
+  "enabled": true,
+  "displayName": "Core Services Realm",
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "gateway-service"
+      },
+      {
+        "name": "registry-service"
+      },
+      {
+        "name": "policy-service"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "core-local-dev",
+      "name": "Core Local Development Service Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "replace-me",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    }
+  ]
+}

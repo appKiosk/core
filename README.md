@@ -40,6 +40,24 @@ The templates define baseline variables for:
 - Keycloak realm and client configuration
 - Tenant and runtime tuning defaults
 
+## Local Keycloak Bootstrap
+
+Issue #31 provisions local Keycloak realms for developer environments.
+
+- Compose stack: `docker-compose.keycloak.yml`
+- Migration assets: `infra/keycloak/migrations`
+- Migration runner: `infra/keycloak/migrations/apply-migrations.sh`
+
+Use the root scripts:
+
+```bash
+npm run dev:keycloak:up
+npm run dev:keycloak:logs
+npm run dev:keycloak:down
+```
+
+The bootstrap process applies ordered `*.realm.json` migration files and updates existing realms when rerun.
+
 ## Workspace Packages
 
 The following Nx workspace packages are scaffolded under `packages/`:
