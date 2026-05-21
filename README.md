@@ -59,3 +59,22 @@ The following Nx workspace packages are scaffolded under `packages/`:
 - C4 Context: [docs/architecture/c4-context.md](docs/architecture/c4-context.md)
 - C4 Container: [docs/architecture/c4-container.md](docs/architecture/c4-container.md)
 - ADR index: [docs/architecture/adrs/README.md](docs/architecture/adrs/README.md)
+
+## Quality Baseline
+
+The workspace enforces a consistent baseline for TypeScript, linting, formatting, and tests across all packages.
+
+- TypeScript strictness is enabled in `tsconfig.base.json`.
+- Each package defines Nx targets for `build`, `typecheck`, `lint`, and `test`.
+- ESLint uses a shared root flat config in `eslint.config.mjs`.
+- Prettier is the source of truth for formatting.
+
+Run the quality suite locally with:
+
+```bash
+npm run format:check
+npm run lint
+npm run test
+npm run build
+npm run typecheck
+```

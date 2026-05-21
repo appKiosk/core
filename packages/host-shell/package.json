@@ -12,5 +12,21 @@
       "default": "./src/index.ts"
     },
     "./package.json": "./package.json"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "command": "tsc -p {projectRoot}/tsconfig.lib.json"
+      },
+      "typecheck": {
+        "command": "tsc --noEmit -p {projectRoot}/tsconfig.lib.json"
+      },
+      "lint": {
+        "command": "eslint {projectRoot}/src --ext .ts --max-warnings=0"
+      },
+      "test": {
+        "command": "vitest run --passWithNoTests {projectRoot}/tests"
+      }
+    }
   }
 }
