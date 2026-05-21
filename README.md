@@ -29,6 +29,7 @@ This repository is the core artifacts and services of a plugin-based app platfor
 
 The following Nx workspace packages are scaffolded under `packages/`:
 
+- `@org/contracts` (`packages/contracts`)
 - `@org/registry` (`packages/registry`)
 - `@org/gateway` (`packages/gateway`)
 - `@org/policy` (`packages/policy`)
