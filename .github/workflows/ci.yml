@@ -30,6 +30,7 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - run: npm run check:lockfile-sync
       - run: npm ci
 
       # Prepend any command with "nx record --" to record its logs to Nx Cloud

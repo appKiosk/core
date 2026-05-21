@@ -2,13 +2,18 @@
   "name": "@org/source",
   "version": "0.0.0",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "format": "npm exec nx -- format:write",
-    "format:check": "npm exec nx -- format:check --base=origin/main",
+    "format:check": "npm exec nx -- format:check --base=remotes/origin/main",
     "lint": "npm exec nx -- run-many -t lint",
     "test": "npm exec nx -- run-many -t test",
     "build": "npm exec nx -- run-many -t build",
-    "typecheck": "npm exec nx -- run-many -t typecheck"
+    "typecheck": "npm exec nx -- run-many -t typecheck",
+    "check:lockfile-sync": "npm install --package-lock-only --ignore-scripts --no-audit --no-fund && git diff --exit-code -- package-lock.json",
+    "prepare": "simple-git-hooks"
   },
   "private": true,
   "dependencies": {},
@@ -23,10 +28,14 @@
     "globals": "^15.15.0",
     "nx": "22.7.2",
     "prettier": "^3.8.1",
+    "simple-git-hooks": "^2.13.1",
     "tslib": "^2.3.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.42.0",
     "vitest": "^3.2.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run check:lockfile-sync"
   },
   "workspaces": [
     "packages/*"
