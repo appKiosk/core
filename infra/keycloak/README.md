@@ -17,7 +17,35 @@ Each file is applied in lexical order by `apply-migrations.sh`.
 This allows deterministic local bootstrap and easy iterative changes by adding a new prefixed migration file.
 
 Client secrets are intentionally not committed in migration JSON files.
-Set `CORE_KEYCLOAK_CLIENT_SECRET` in `.env` to have the migration runner apply the secret after realm creation/update.
+
+The migration runner resolves secrets from environment variables using this order:
+
+1. `KEYCLOAK_CLIENT_SECRET_<CLIENT_ID_SUFFIX>` for exact client IDs
+2. `CORE_KEYCLOAK_CLIENT_SECRET` for the fallback `CORE_KEYCLOAK_CLIENT_ID`
+
+Example: `core-local-plugin-admin-iam` maps to `KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_PLUGIN_ADMIN_IAM`.
+
+## Client Provisioning Model
+
+This repository defines client IDs by environment and use case.
+
+Pattern:
+
+- User realm UI client: `core-<environment>-host-shell`
+- Core service clients: `core-<environment>-<service>`
+- Plugin admin clients: `core-<environment>-plugin-admin-<pluginId>`
+
+Local migrations currently provision:
+
+- User realm (`core-users`):
+  - `core-local-host-shell`
+- Service realm (`core-services`):
+  - `core-local-gateway`
+  - `core-local-registry`
+  - `core-local-policy`
+  - `core-local-plugin-admin-iam`
+  - `core-local-plugin-admin-licensing`
+  - `core-local-plugin-admin-account-management`
 
 ## Running Locally
 
@@ -32,4 +60,5 @@ Keycloak admin URL: `http://localhost:8081` (unless `CORE_KEYCLOAK_PORT` is over
 Before running the stack, set these values in `.env`:
 
 - `KEYCLOAK_ADMIN_PASSWORD` (required)
-- `CORE_KEYCLOAK_CLIENT_SECRET` (recommended)
+- `CORE_KEYCLOAK_CLIENT_ID` and `CORE_KEYCLOAK_CLIENT_SECRET` (recommended fallback)
+- Any per-client secret variables for additional confidential clients (recommended)

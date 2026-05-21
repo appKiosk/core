@@ -1,5 +1,13 @@
 export type PluginId = string;
 export type TenantId = string;
+export type CoreEnvironment = 'local' | 'dev' | 'staging' | 'prod';
+export type KeycloakRealmName = 'core-users' | 'core-services';
+
+export type CoreServiceUseCase =
+  | 'gateway'
+  | 'registry'
+  | 'policy'
+  | 'plugin-admin';
 
 export interface ApiErrorShape {
   code: string;
@@ -52,6 +60,42 @@ export interface PluginMetadata {
   version: string;
   owner: string;
   description?: string;
+}
+
+export interface KeycloakClientProvisioningSpec {
+  clientId: string;
+  realm: KeycloakRealmName;
+  environment: CoreEnvironment;
+  useCase: 'host-shell' | CoreServiceUseCase;
+  flow: 'authorization_code_pkce' | 'client_credentials';
+  pluginId?: PluginId;
+}
+
+export function buildCoreUserClientId(environment: CoreEnvironment): string {
+  return `core-${environment}-host-shell`;
+}
+
+export function buildCoreServiceClientId(
+  environment: CoreEnvironment,
+  useCase: Exclude<CoreServiceUseCase, 'plugin-admin'>,
+): string {
+  return `core-${environment}-${useCase}`;
+}
+
+export function buildPluginAdminClientId(
+  environment: CoreEnvironment,
+  pluginId: PluginId,
+): string {
+  const normalizedPluginId = pluginId.trim().toLowerCase();
+
+  if (!/^[a-z0-9-]+$/.test(normalizedPluginId)) {
+    throw new ValidationContractsError(
+      'Plugin id must contain only lowercase letters, numbers, and hyphens.',
+      { pluginId },
+    );
+  }
+
+  return `core-${environment}-plugin-admin-${normalizedPluginId}`;
 }
 
 export interface PluginRegistrationRequest {

@@ -20,14 +20,17 @@
   },
   "clients": [
     {
-      "clientId": "core-local-dev",
-      "name": "Core Local Development Client",
+      "clientId": "core-local-host-shell",
+      "name": "Core Local Host Shell Client",
       "enabled": true,
       "protocol": "openid-connect",
-      "publicClient": false,
+      "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
       "redirectUris": ["http://localhost:4200/*"],
       "webOrigins": ["http://localhost:4200"]
     }
