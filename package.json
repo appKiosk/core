@@ -12,7 +12,7 @@
     "test": "npm exec nx -- run-many -t test",
     "build": "npm exec nx -- run-many -t build",
     "typecheck": "npm exec nx -- run-many -t typecheck",
-    "check:lockfile-sync": "npm install --package-lock-only --ignore-scripts --no-audit --no-fund && git diff --exit-code -- package-lock.json",
+    "check:lockfile-sync": "npx --yes npm@10.8.2 install --package-lock-only --ignore-scripts --no-audit --no-fund && git diff --exit-code -- package-lock.json",
     "prepare": "simple-git-hooks"
   },
   "private": true,
