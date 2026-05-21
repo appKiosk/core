@@ -4,6 +4,13 @@
 
 This folder captures key architectural decisions for the core platform POC and early production trajectory.
 
+## Linking and Traceability Rules
+
+- Every architecture-impacting issue and PR must link the affected ADR(s), or explicitly state `No ADR impact`.
+- When adding a new ADR, update this index in the same PR.
+- When an ADR replaces a prior decision, include explicit `Supersedes:` and/or `Superseded by:` references in both ADR documents.
+- If decision coverage shifts, update `docs/architecture/decision-matrix.md` in the same change set.
+
 ## ADR Index
 
 - [ADR-0001](ADR-0001-plugin-registration-model.md): Plugin registration model (push + async validation)
