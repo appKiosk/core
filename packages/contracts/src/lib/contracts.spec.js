@@ -5,7 +5,7 @@ import { ContractsError, ValidationContractsError } from './contracts.ts';
 
 test('ContractsError exposes code, message, and status', () => {
   const error = new ContractsError('BROKEN', 'Something failed', 503, {
-    service: 'registry'
+    service: 'registry',
   });
 
   assert.equal(error.code, 'BROKEN');
@@ -28,18 +28,18 @@ test('shared contracts can be composed as runtime objects', () => {
       pluginId: 'plugin.billing',
       displayName: 'Billing Plugin',
       version: '1.2.0',
-      owner: 'platform-team'
+      owner: 'platform-team',
     },
     gatewayBaseUrl: 'https://plugins.example.com/billing',
     healthEndpoint: '/health',
     permissions: ['billing.invoice.read'],
-    policies: ['billing.invoice.owner-only']
+    policies: ['billing.invoice.owner-only'],
   };
 
   const response = {
     data: registration,
     requestId: 'req_123',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   assert.equal(response.data.metadata.pluginId, 'plugin.billing');

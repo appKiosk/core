@@ -13,7 +13,7 @@ export class ContractsError extends Error implements ApiErrorShape {
     public readonly code: string,
     message: string,
     public readonly status = 500,
-    public readonly details?: Record<string, unknown>
+    public readonly details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'ContractsError';
