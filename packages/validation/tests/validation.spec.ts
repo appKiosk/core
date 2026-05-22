@@ -117,7 +117,8 @@ describe('buildServiceCredentialSecretPlan', () => {
       },
       {
         clientId: 'core-local-plugin-admin-iam',
-        activeSecretEnvVar: 'KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_PLUGIN_ADMIN_IAM',
+        activeSecretEnvVar:
+          'KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_PLUGIN_ADMIN_IAM',
         nextSecretEnvVar:
           'KEYCLOAK_CLIENT_SECRET_NEXT_CORE_LOCAL_PLUGIN_ADMIN_IAM',
       },
@@ -126,7 +127,9 @@ describe('buildServiceCredentialSecretPlan', () => {
 
   it('normalizes client ids before building plan entries', () => {
     expect(
-      buildServiceCredentialSecretPlan([{ clientId: '  CORE-LOCAL-GATEWAY  ' }]),
+      buildServiceCredentialSecretPlan([
+        { clientId: '  CORE-LOCAL-GATEWAY  ' },
+      ]),
     ).toEqual([
       {
         clientId: 'core-local-gateway',

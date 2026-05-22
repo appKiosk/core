@@ -17,7 +17,7 @@
     "dev:keycloak:down": "podman-compose -f docker-compose.yml down -v",
     "dev:keycloak:logs": "podman-compose -f docker-compose.yml logs -f keycloak",
     "check:lockfile-sync": "npx --yes npm@10.8.2 install --package-lock-only --ignore-scripts --no-audit --no-fund && git diff --exit-code -- package-lock.json",
-    "check:format-staged": "files=$(git diff --cached --name-only --diff-filter=ACMR | paste -sd, -) && [ -z \"$files\" ] || npm exec nx -- format:check --files=\"$files\"",
+    "check:format-branch": "base=$(git merge-base remotes/origin/main HEAD) && npm exec nx -- format:check --base=\"$base\" --head=HEAD",
     "prepare": "simple-git-hooks"
   },
   "private": true,
@@ -40,7 +40,7 @@
     "vitest": "^3.2.4"
   },
   "simple-git-hooks": {
-    "pre-commit": "npm run check:lockfile-sync && npm run check:format-staged"
+    "pre-commit": "npm run check:lockfile-sync && npm run check:format-branch"
   },
   "workspaces": [
     "packages/*"

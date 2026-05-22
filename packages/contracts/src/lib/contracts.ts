@@ -19,6 +19,10 @@ export interface ServiceCredentialSecretReference {
 
 const CLIENT_ID_PATTERN = /^[a-z0-9-]+$/;
 
+function normalizeClientId(clientId: string): string {
+  return clientId.trim().toLowerCase();
+}
+
 export interface ApiErrorShape {
   code: string;
   message: string;
@@ -118,7 +122,7 @@ export function buildPluginAdminClientId(
   environment: CoreEnvironment,
   pluginId: PluginId,
 ): string {
-  const normalizedPluginId = pluginId.trim().toLowerCase();
+  const normalizedPluginId = normalizeClientId(pluginId);
 
   if (!CLIENT_ID_PATTERN.test(normalizedPluginId)) {
     throw new ValidationContractsError(
@@ -134,7 +138,7 @@ export function buildClientSecretEnvVarName(
   clientId: string,
   stage: ServiceCredentialSecretStage = 'active',
 ): string {
-  const normalizedClientId = clientId.trim().toLowerCase();
+  const normalizedClientId = normalizeClientId(clientId);
 
   if (!CLIENT_ID_PATTERN.test(normalizedClientId)) {
     throw new ValidationContractsError(
@@ -148,7 +152,9 @@ export function buildClientSecretEnvVarName(
     .toUpperCase()
     .replace(/[^A-Z0-9_]/g, '_');
   const prefix =
-    stage === 'next' ? 'KEYCLOAK_CLIENT_SECRET_NEXT_' : 'KEYCLOAK_CLIENT_SECRET_';
+    stage === 'next'
+      ? 'KEYCLOAK_CLIENT_SECRET_NEXT_'
+      : 'KEYCLOAK_CLIENT_SECRET_';
 
   return `${prefix}${suffix}`;
 }
@@ -156,16 +162,18 @@ export function buildClientSecretEnvVarName(
 export function buildServiceCredentialSecretReferences(
   clientId: string,
 ): ServiceCredentialSecretReference[] {
+  const normalizedClientId = normalizeClientId(clientId);
+
   return [
     {
-      clientId,
+      clientId: normalizedClientId,
       stage: 'active',
-      envVarName: buildClientSecretEnvVarName(clientId, 'active'),
+      envVarName: buildClientSecretEnvVarName(normalizedClientId, 'active'),
     },
     {
-      clientId,
+      clientId: normalizedClientId,
       stage: 'next',
-      envVarName: buildClientSecretEnvVarName(clientId, 'next'),
+      envVarName: buildClientSecretEnvVarName(normalizedClientId, 'next'),
     },
   ];
 }

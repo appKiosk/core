@@ -29,7 +29,7 @@ For no-downtime rotation windows, you can also set:
 
 - `KEYCLOAK_CLIENT_SECRET_NEXT_<CLIENT_ID_SUFFIX>`
 
-When both active and next values are provided, the migration runner configures a rotated secret in Keycloak so old and new credentials can overlap during rollout. If no `NEXT` value is provided, any stale rotated secret is cleared.
+When both active and next values are provided and the `NEXT` value differs from active, the migration runner configures a rotated secret in Keycloak so old and new credentials can overlap during rollout. If no `NEXT` value is provided (or it matches active), any stale rotated secret is cleared.
 
 ## Secret Storage and Rotation Process
 

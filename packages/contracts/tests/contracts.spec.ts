@@ -79,6 +79,23 @@ describe('contracts', () => {
     ]);
   });
 
+  it('normalizes client id in service credential secret references', () => {
+    expect(
+      buildServiceCredentialSecretReferences('  CORE-LOCAL-PLUGIN-ADMIN-IAM  '),
+    ).toEqual([
+      {
+        clientId: 'core-local-plugin-admin-iam',
+        stage: 'active',
+        envVarName: 'KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_PLUGIN_ADMIN_IAM',
+      },
+      {
+        clientId: 'core-local-plugin-admin-iam',
+        stage: 'next',
+        envVarName: 'KEYCLOAK_CLIENT_SECRET_NEXT_CORE_LOCAL_PLUGIN_ADMIN_IAM',
+      },
+    ]);
+  });
+
   it('rejects invalid client ids in secret env var names', () => {
     expect(() => buildClientSecretEnvVarName('Core Local Gateway')).toThrow(
       'Client id must contain only lowercase letters, numbers, and hyphens.',

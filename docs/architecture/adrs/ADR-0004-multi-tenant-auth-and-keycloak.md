@@ -45,7 +45,7 @@ The platform requires tenant-aware routing, user authentication, and service-to-
 - Service credential secrets are environment-sourced and mapped by client ID:
   - Active secret: `KEYCLOAK_CLIENT_SECRET_<CLIENT_ID_SUFFIX>`
   - Staged rotation secret: `KEYCLOAK_CLIENT_SECRET_NEXT_<CLIENT_ID_SUFFIX>`
-- The migration runner applies active secrets and, when a staged secret exists, configures overlap rotation in Keycloak.
+- The migration runner applies active secrets and configures overlap rotation in Keycloak when a staged `NEXT` secret exists and differs from active.
 - Rotation process:
   1. Keep the current secret in `KEYCLOAK_CLIENT_SECRET_<...>`.
   2. Stage the replacement in `KEYCLOAK_CLIENT_SECRET_NEXT_<...>`.
