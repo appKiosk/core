@@ -25,6 +25,23 @@ The migration runner resolves secrets from environment variables using this orde
 
 Example: `core-local-plugin-admin-iam` maps to `KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_PLUGIN_ADMIN_IAM`.
 
+For no-downtime rotation windows, you can also set:
+
+- `KEYCLOAK_CLIENT_SECRET_NEXT_<CLIENT_ID_SUFFIX>`
+
+When both active and next values are provided and the `NEXT` value differs from active, the migration runner configures a rotated secret in Keycloak so old and new credentials can overlap during rollout. If no `NEXT` value is provided (or it matches active), any stale rotated secret is cleared.
+
+## Secret Storage and Rotation Process
+
+Service credentials are stored only in environment variables and applied at migration time.
+
+1. Keep the current credential in `KEYCLOAK_CLIENT_SECRET_<CLIENT_ID_SUFFIX>`.
+2. Stage the replacement credential in `KEYCLOAK_CLIENT_SECRET_NEXT_<CLIENT_ID_SUFFIX>`.
+3. Run `npm run dev:keycloak:migrate` to apply both values and start overlap.
+4. Roll all client consumers to the replacement credential.
+5. Promote by moving the replacement value to `KEYCLOAK_CLIENT_SECRET_<CLIENT_ID_SUFFIX>` and clearing `..._NEXT_...`.
+6. Run `npm run dev:keycloak:migrate` again to remove overlap.
+
 ## Client Provisioning Model
 
 This repository defines client IDs by environment and use case.
@@ -61,4 +78,4 @@ Before running the stack, set these values in `.env`:
 
 - `KEYCLOAK_ADMIN_PASSWORD` (required)
 - `CORE_KEYCLOAK_CLIENT_ID` and `CORE_KEYCLOAK_CLIENT_SECRET` (recommended fallback)
-- Any per-client secret variables for additional confidential clients (recommended)
+- Any per-client active/next secret variables for additional confidential clients (recommended)

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildClientSecretEnvVarName,
   buildCoreServiceClientId,
   buildCoreUserClientId,
   buildPluginAdminClientId,
+  buildServiceCredentialSecretReferences,
   ContractsError,
   ValidationContractsError,
 } from '../src/index.js';
@@ -48,6 +50,55 @@ describe('contracts', () => {
   it('rejects invalid plugin ids in plugin admin client ids', () => {
     expect(() => buildPluginAdminClientId('local', 'IAM Service')).toThrow(
       'Plugin id must contain only lowercase letters, numbers, and hyphens.',
+    );
+  });
+
+  it('builds active and next secret env var names for service credentials', () => {
+    expect(buildClientSecretEnvVarName('core-local-gateway')).toBe(
+      'KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_GATEWAY',
+    );
+    expect(buildClientSecretEnvVarName('core-local-gateway', 'next')).toBe(
+      'KEYCLOAK_CLIENT_SECRET_NEXT_CORE_LOCAL_GATEWAY',
+    );
+  });
+
+  it('builds service credential secret references for rotation flow', () => {
+    expect(
+      buildServiceCredentialSecretReferences('core-local-plugin-admin-iam'),
+    ).toEqual([
+      {
+        clientId: 'core-local-plugin-admin-iam',
+        stage: 'active',
+        envVarName: 'KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_PLUGIN_ADMIN_IAM',
+      },
+      {
+        clientId: 'core-local-plugin-admin-iam',
+        stage: 'next',
+        envVarName: 'KEYCLOAK_CLIENT_SECRET_NEXT_CORE_LOCAL_PLUGIN_ADMIN_IAM',
+      },
+    ]);
+  });
+
+  it('normalizes client id in service credential secret references', () => {
+    expect(
+      buildServiceCredentialSecretReferences('  CORE-LOCAL-PLUGIN-ADMIN-IAM  '),
+    ).toEqual([
+      {
+        clientId: 'core-local-plugin-admin-iam',
+        stage: 'active',
+        envVarName: 'KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_PLUGIN_ADMIN_IAM',
+      },
+      {
+        clientId: 'core-local-plugin-admin-iam',
+        stage: 'next',
+        envVarName: 'KEYCLOAK_CLIENT_SECRET_NEXT_CORE_LOCAL_PLUGIN_ADMIN_IAM',
+      },
+    ]);
+  });
+
+  it('rejects invalid client ids in secret env var names', () => {
+    expect(() => buildClientSecretEnvVarName('Core Local Gateway')).toThrow(
+      'Client id must contain only lowercase letters, numbers, and hyphens.',
     );
   });
 });

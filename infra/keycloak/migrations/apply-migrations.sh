@@ -32,7 +32,7 @@ normalize_client_env_var_suffix() {
   printf '%s' "${client_id}" | tr '[:lower:]-' '[:upper:]_' | sed 's/[^A-Z0-9_]/_/g'
 }
 
-resolve_client_secret() {
+resolve_active_client_secret() {
   client_id="$1"
   env_var_suffix=$(normalize_client_env_var_suffix "${client_id}")
   env_var_name="KEYCLOAK_CLIENT_SECRET_${env_var_suffix}"
@@ -52,14 +52,39 @@ resolve_client_secret() {
   printf ''
 }
 
+resolve_next_client_secret() {
+  client_id="$1"
+  env_var_suffix=$(normalize_client_env_var_suffix "${client_id}")
+  env_var_name="KEYCLOAK_CLIENT_SECRET_NEXT_${env_var_suffix}"
+  resolved_client_secret=$(printenv "${env_var_name}" || true)
+
+  if [ -n "${resolved_client_secret}" ]; then
+    printf '%s' "${resolved_client_secret}"
+    return
+  fi
+
+  printf ''
+}
+
 set_client_secret() {
   realm_name="$1"
   client_id="$2"
-  client_secret_value=$(resolve_client_secret "${client_id}")
+  active_client_secret_value=$(resolve_active_client_secret "${client_id}")
+  next_client_secret_value=$(resolve_next_client_secret "${client_id}")
 
-  if [ -z "${client_secret_value}" ]; then
+  if [ -z "${active_client_secret_value}" ] && [ -z "${next_client_secret_value}" ]; then
     echo "No configured secret for ${client_id} in realm ${realm_name}; skipping secret update."
     return
+  fi
+
+  if [ -z "${active_client_secret_value}" ] && [ -n "${next_client_secret_value}" ]; then
+    echo "Rotation secret configured without active secret for ${client_id} in realm ${realm_name}; skipping secret update."
+    return
+  fi
+
+  if [ -n "${next_client_secret_value}" ] && [ "${active_client_secret_value}" = "${next_client_secret_value}" ]; then
+    echo "Rotation secret matches active secret for ${client_id} in realm ${realm_name}; ignoring next secret value."
+    next_client_secret_value=''
   fi
 
   client_internal_id=$(
@@ -73,7 +98,16 @@ set_client_secret() {
     return
   fi
 
-  /opt/keycloak/bin/kcadm.sh create "clients/${client_internal_id}/client-secret" -r "${realm_name}" -s "value=${client_secret_value}" >/dev/null
+  /opt/keycloak/bin/kcadm.sh create "clients/${client_internal_id}/client-secret" -r "${realm_name}" -s "value=${active_client_secret_value}" >/dev/null
+
+  if [ -n "${next_client_secret_value}" ]; then
+    /opt/keycloak/bin/kcadm.sh create "clients/${client_internal_id}/client-secret/rotated" -r "${realm_name}" -s "value=${next_client_secret_value}" >/dev/null
+    echo "Configured overlap rotation secret for ${client_id} in realm ${realm_name}."
+    return
+  fi
+
+  # Clear stale rotated secret when no overlap window is configured.
+  /opt/keycloak/bin/kcadm.sh delete "clients/${client_internal_id}/client-secret/rotated" -r "${realm_name}" >/dev/null 2>&1 || true
 }
 
 set_client_secrets_for_realm() {

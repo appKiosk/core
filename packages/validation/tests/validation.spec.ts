@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildServiceCredentialSecretPlan,
   buildRealmMigrationPlan,
   parseRealmMigrationFileName,
   validation,
@@ -97,6 +98,63 @@ describe('buildRealmMigrationPlan', () => {
       ]),
     ).toThrow(
       'Realm mismatch for migration "001-core-users.realm.json": expected "core-users", received "core-services".',
+    );
+  });
+});
+
+describe('buildServiceCredentialSecretPlan', () => {
+  it('builds active and next secret env var names for each service client', () => {
+    expect(
+      buildServiceCredentialSecretPlan([
+        { clientId: 'core-local-gateway' },
+        { clientId: 'core-local-plugin-admin-iam' },
+      ]),
+    ).toEqual([
+      {
+        clientId: 'core-local-gateway',
+        activeSecretEnvVar: 'KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_GATEWAY',
+        nextSecretEnvVar: 'KEYCLOAK_CLIENT_SECRET_NEXT_CORE_LOCAL_GATEWAY',
+      },
+      {
+        clientId: 'core-local-plugin-admin-iam',
+        activeSecretEnvVar:
+          'KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_PLUGIN_ADMIN_IAM',
+        nextSecretEnvVar:
+          'KEYCLOAK_CLIENT_SECRET_NEXT_CORE_LOCAL_PLUGIN_ADMIN_IAM',
+      },
+    ]);
+  });
+
+  it('normalizes client ids before building plan entries', () => {
+    expect(
+      buildServiceCredentialSecretPlan([
+        { clientId: '  CORE-LOCAL-GATEWAY  ' },
+      ]),
+    ).toEqual([
+      {
+        clientId: 'core-local-gateway',
+        activeSecretEnvVar: 'KEYCLOAK_CLIENT_SECRET_CORE_LOCAL_GATEWAY',
+        nextSecretEnvVar: 'KEYCLOAK_CLIENT_SECRET_NEXT_CORE_LOCAL_GATEWAY',
+      },
+    ]);
+  });
+
+  it('rejects duplicate normalized client ids', () => {
+    expect(() =>
+      buildServiceCredentialSecretPlan([
+        { clientId: 'core-local-gateway' },
+        { clientId: 'CORE-LOCAL-GATEWAY' },
+      ]),
+    ).toThrow(
+      'Duplicate service credential client id detected: "core-local-gateway".',
+    );
+  });
+
+  it('rejects invalid client ids', () => {
+    expect(() =>
+      buildServiceCredentialSecretPlan([{ clientId: 'core local gateway' }]),
+    ).toThrow(
+      'Invalid client id "core local gateway". Expected lowercase letters, numbers, and hyphens.',
     );
   });
 });
