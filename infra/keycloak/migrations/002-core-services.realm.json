@@ -18,8 +18,58 @@
   },
   "clients": [
     {
-      "clientId": "core-local-dev",
-      "name": "Core Local Development Service Client",
+      "clientId": "core-local-gateway",
+      "name": "Core Local Gateway Service Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    },
+    {
+      "clientId": "core-local-registry",
+      "name": "Core Local Registry Service Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    },
+    {
+      "clientId": "core-local-policy",
+      "name": "Core Local Policy Service Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    },
+    {
+      "clientId": "core-local-plugin-admin-iam",
+      "name": "Core Local Plugin Admin IAM Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    },
+    {
+      "clientId": "core-local-plugin-admin-licensing",
+      "name": "Core Local Plugin Admin Licensing Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    },
+    {
+      "clientId": "core-local-plugin-admin-account-management",
+      "name": "Core Local Plugin Admin Account Management Client",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,

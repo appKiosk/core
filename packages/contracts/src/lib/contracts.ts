@@ -1,5 +1,13 @@
 export type PluginId = string;
 export type TenantId = string;
+export type CoreEnvironment = 'local' | 'dev' | 'staging' | 'prod';
+export type KeycloakRealmName = 'core-users' | 'core-services';
+
+export type CoreServiceUseCase =
+  | 'gateway'
+  | 'registry'
+  | 'policy'
+  | 'plugin-admin';
 
 export interface ApiErrorShape {
   code: string;
@@ -52,6 +60,64 @@ export interface PluginMetadata {
   version: string;
   owner: string;
   description?: string;
+}
+
+interface KeycloakClientProvisioningSpecBase {
+  clientId: string;
+  environment: CoreEnvironment;
+}
+
+interface HostShellClientProvisioningSpec extends KeycloakClientProvisioningSpecBase {
+  realm: 'core-users';
+  useCase: 'host-shell';
+  flow: 'authorization_code_pkce';
+  pluginId?: never;
+}
+
+interface CoreServiceClientProvisioningSpec extends KeycloakClientProvisioningSpecBase {
+  realm: 'core-services';
+  useCase: Exclude<CoreServiceUseCase, 'plugin-admin'>;
+  flow: 'client_credentials';
+  pluginId?: never;
+}
+
+interface PluginAdminClientProvisioningSpec extends KeycloakClientProvisioningSpecBase {
+  realm: 'core-services';
+  useCase: 'plugin-admin';
+  flow: 'client_credentials';
+  pluginId: PluginId;
+}
+
+export type KeycloakClientProvisioningSpec =
+  | HostShellClientProvisioningSpec
+  | CoreServiceClientProvisioningSpec
+  | PluginAdminClientProvisioningSpec;
+
+export function buildCoreUserClientId(environment: CoreEnvironment): string {
+  return `core-${environment}-host-shell`;
+}
+
+export function buildCoreServiceClientId(
+  environment: CoreEnvironment,
+  useCase: Exclude<CoreServiceUseCase, 'plugin-admin'>,
+): string {
+  return `core-${environment}-${useCase}`;
+}
+
+export function buildPluginAdminClientId(
+  environment: CoreEnvironment,
+  pluginId: PluginId,
+): string {
+  const normalizedPluginId = pluginId.trim().toLowerCase();
+
+  if (!/^[a-z0-9-]+$/.test(normalizedPluginId)) {
+    throw new ValidationContractsError(
+      'Plugin id must contain only lowercase letters, numbers, and hyphens.',
+      { pluginId },
+    );
+  }
+
+  return `core-${environment}-plugin-admin-${normalizedPluginId}`;
 }
 
 export interface PluginRegistrationRequest {

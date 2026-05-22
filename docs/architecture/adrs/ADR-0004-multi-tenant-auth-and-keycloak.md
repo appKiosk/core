@@ -29,3 +29,13 @@ The platform requires tenant-aware routing, user authentication, and service-to-
 - Local development provisioning uses `docker-compose.yml`.
 - User and service realms are bootstrapped via ordered migration files in `infra/keycloak/migrations`.
 - Migration execution is idempotent for local environments through `apply-migrations.sh`, enabling repeatable bootstrap.
+
+## Client Provisioning Model
+
+- Provision clients per environment (`local`, `dev`, `staging`, `prod`) and per use case.
+- Naming conventions:
+  - User realm interactive UI clients: `core-<environment>-host-shell`
+  - Core service clients (client credentials): `core-<environment>-<service>`
+  - Plugin administration clients (client credentials): `core-<environment>-plugin-admin-<pluginId>`
+- Plugin admin clients are confidential clients in the service realm and are unique per plugin per environment.
+- Secrets are injected at bootstrap from environment variables, never committed in realm JSON.
