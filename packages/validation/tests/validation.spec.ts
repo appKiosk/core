@@ -221,7 +221,7 @@ describe('buildPluginMetadataSigningKeyPlan', () => {
         { keyId: 'core local plugin metadata v1' },
       ]),
     ).toThrow(
-      'Invalid signing key id "core local plugin metadata v1". Expected lowercase letters, numbers, and hyphens.',
+      'Invalid signing key id "core local plugin metadata v1". Expected letters, numbers, and hyphens.',
     );
   });
 });
@@ -244,7 +244,7 @@ describe('generatePluginMetadataSigningKeyPair', () => {
         keyId: 'Core Local Plugin Metadata V1',
       }),
     ).toThrow(
-      'Invalid signing key id "Core Local Plugin Metadata V1". Expected lowercase letters, numbers, and hyphens.',
+      'Invalid signing key id "Core Local Plugin Metadata V1". Expected letters, numbers, and hyphens.',
     );
   });
 });

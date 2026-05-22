@@ -152,7 +152,7 @@ describe('contracts', () => {
         'private',
       ),
     ).toThrow(
-      'Signing key id must contain only lowercase letters, numbers, and hyphens.',
+      'Signing key id must contain only letters, numbers, and hyphens.',
     );
   });
 });

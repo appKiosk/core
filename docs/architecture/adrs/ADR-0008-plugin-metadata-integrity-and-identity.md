@@ -28,8 +28,8 @@ Plugin metadata drives routing, UX, and governance and must be stable and tamper
 - Plugin metadata signatures use Ed25519 key pairs.
 - Signing key material is stored via environment variables and never committed.
 - Environment variable naming conventions:
-	- Active private key: `PLUGIN_METADATA_SIGNING_PRIVATE_KEY_<KEY_ID_SUFFIX>`
-	- Active public key: `PLUGIN_METADATA_SIGNING_PUBLIC_KEY_<KEY_ID_SUFFIX>`
-	- Next private key (staged): `PLUGIN_METADATA_SIGNING_PRIVATE_KEY_NEXT_<KEY_ID_SUFFIX>`
-	- Next public key (staged): `PLUGIN_METADATA_SIGNING_PUBLIC_KEY_NEXT_<KEY_ID_SUFFIX>`
+  - Active private key: `PLUGIN_METADATA_SIGNING_PRIVATE_KEY_<KEY_ID_SUFFIX>`
+  - Active public key: `PLUGIN_METADATA_SIGNING_PUBLIC_KEY_<KEY_ID_SUFFIX>`
+  - Next private key (staged): `PLUGIN_METADATA_SIGNING_PRIVATE_KEY_NEXT_<KEY_ID_SUFFIX>`
+  - Next public key (staged): `PLUGIN_METADATA_SIGNING_PUBLIC_KEY_NEXT_<KEY_ID_SUFFIX>`
 - `<KEY_ID_SUFFIX>` is the uppercase key id with dashes converted to underscores.

@@ -41,14 +41,16 @@ function validateSigningKeyId(keyId: string): string {
 
   if (!SIGNING_KEY_ID_PATTERN.test(normalizedKeyId)) {
     throw new Error(
-      `Invalid signing key id "${keyId}". Expected lowercase letters, numbers, and hyphens.`,
+      `Invalid signing key id "${keyId}". Expected letters, numbers, and hyphens.`,
     );
   }
 
   return normalizedKeyId;
 }
 
-function validateAlgorithm(algorithm: string | undefined): PluginMetadataSigningAlgorithm {
+function validateAlgorithm(
+  algorithm: string | undefined,
+): PluginMetadataSigningAlgorithm {
   if (algorithm !== undefined && algorithm !== 'ed25519') {
     throw new Error(
       `Unsupported plugin metadata signing algorithm "${algorithm}". Only "ed25519" is supported.`,

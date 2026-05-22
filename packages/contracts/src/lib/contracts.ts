@@ -198,7 +198,7 @@ export function buildPluginMetadataSigningKeyEnvVarName(
 
   if (!CLIENT_ID_PATTERN.test(normalizedKeyId)) {
     throw new ValidationContractsError(
-      'Signing key id must contain only lowercase letters, numbers, and hyphens.',
+      'Signing key id must contain only letters, numbers, and hyphens.',
       { keyId },
     );
   }
