@@ -67,24 +67,21 @@ interface KeycloakClientProvisioningSpecBase {
   environment: CoreEnvironment;
 }
 
-interface HostShellClientProvisioningSpec
-  extends KeycloakClientProvisioningSpecBase {
+interface HostShellClientProvisioningSpec extends KeycloakClientProvisioningSpecBase {
   realm: 'core-users';
   useCase: 'host-shell';
   flow: 'authorization_code_pkce';
   pluginId?: never;
 }
 
-interface CoreServiceClientProvisioningSpec
-  extends KeycloakClientProvisioningSpecBase {
+interface CoreServiceClientProvisioningSpec extends KeycloakClientProvisioningSpecBase {
   realm: 'core-services';
   useCase: Exclude<CoreServiceUseCase, 'plugin-admin'>;
   flow: 'client_credentials';
   pluginId?: never;
 }
 
-interface PluginAdminClientProvisioningSpec
-  extends KeycloakClientProvisioningSpecBase {
+interface PluginAdminClientProvisioningSpec extends KeycloakClientProvisioningSpecBase {
   realm: 'core-services';
   useCase: 'plugin-admin';
   flow: 'client_credentials';
