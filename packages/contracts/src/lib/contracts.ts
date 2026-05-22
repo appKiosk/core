@@ -9,6 +9,16 @@ export type CoreServiceUseCase =
   | 'policy'
   | 'plugin-admin';
 
+export type ServiceCredentialSecretStage = 'active' | 'next';
+
+export interface ServiceCredentialSecretReference {
+  clientId: string;
+  stage: ServiceCredentialSecretStage;
+  envVarName: string;
+}
+
+const CLIENT_ID_PATTERN = /^[a-z0-9-]+$/;
+
 export interface ApiErrorShape {
   code: string;
   message: string;
@@ -110,7 +120,7 @@ export function buildPluginAdminClientId(
 ): string {
   const normalizedPluginId = pluginId.trim().toLowerCase();
 
-  if (!/^[a-z0-9-]+$/.test(normalizedPluginId)) {
+  if (!CLIENT_ID_PATTERN.test(normalizedPluginId)) {
     throw new ValidationContractsError(
       'Plugin id must contain only lowercase letters, numbers, and hyphens.',
       { pluginId },
@@ -118,6 +128,46 @@ export function buildPluginAdminClientId(
   }
 
   return `core-${environment}-plugin-admin-${normalizedPluginId}`;
+}
+
+export function buildClientSecretEnvVarName(
+  clientId: string,
+  stage: ServiceCredentialSecretStage = 'active',
+): string {
+  const normalizedClientId = clientId.trim().toLowerCase();
+
+  if (!CLIENT_ID_PATTERN.test(normalizedClientId)) {
+    throw new ValidationContractsError(
+      'Client id must contain only lowercase letters, numbers, and hyphens.',
+      { clientId },
+    );
+  }
+
+  const suffix = normalizedClientId
+    .replace(/-/g, '_')
+    .toUpperCase()
+    .replace(/[^A-Z0-9_]/g, '_');
+  const prefix =
+    stage === 'next' ? 'KEYCLOAK_CLIENT_SECRET_NEXT_' : 'KEYCLOAK_CLIENT_SECRET_';
+
+  return `${prefix}${suffix}`;
+}
+
+export function buildServiceCredentialSecretReferences(
+  clientId: string,
+): ServiceCredentialSecretReference[] {
+  return [
+    {
+      clientId,
+      stage: 'active',
+      envVarName: buildClientSecretEnvVarName(clientId, 'active'),
+    },
+    {
+      clientId,
+      stage: 'next',
+      envVarName: buildClientSecretEnvVarName(clientId, 'next'),
+    },
+  ];
 }
 
 export interface PluginRegistrationRequest {

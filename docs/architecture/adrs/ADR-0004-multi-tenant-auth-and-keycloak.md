@@ -39,3 +39,17 @@ The platform requires tenant-aware routing, user authentication, and service-to-
   - Plugin administration clients (client credentials): `core-<environment>-plugin-admin-<pluginId>`
 - Plugin admin clients are confidential clients in the service realm and are unique per plugin per environment.
 - Secrets are injected at bootstrap from environment variables, never committed in realm JSON.
+
+## Service Credential Secret Storage and Rotation
+
+- Service credential secrets are environment-sourced and mapped by client ID:
+  - Active secret: `KEYCLOAK_CLIENT_SECRET_<CLIENT_ID_SUFFIX>`
+  - Staged rotation secret: `KEYCLOAK_CLIENT_SECRET_NEXT_<CLIENT_ID_SUFFIX>`
+- The migration runner applies active secrets and, when a staged secret exists, configures overlap rotation in Keycloak.
+- Rotation process:
+  1. Keep the current secret in `KEYCLOAK_CLIENT_SECRET_<...>`.
+  2. Stage the replacement in `KEYCLOAK_CLIENT_SECRET_NEXT_<...>`.
+  3. Apply migrations to begin overlap window.
+  4. Roll consumers to replacement credential.
+  5. Promote replacement to active and clear `NEXT`.
+  6. Re-apply migrations to end overlap.
