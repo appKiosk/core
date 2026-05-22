@@ -36,7 +36,7 @@ resolve_client_secret() {
   client_id="$1"
   env_var_suffix=$(normalize_client_env_var_suffix "${client_id}")
   env_var_name="KEYCLOAK_CLIENT_SECRET_${env_var_suffix}"
-  eval resolved_client_secret="\${${env_var_name}:-}"
+  resolved_client_secret=$(printenv "${env_var_name}" || true)
 
   if [ -n "${resolved_client_secret}" ]; then
     printf '%s' "${resolved_client_secret}"
@@ -88,7 +88,11 @@ set_client_secrets_for_realm() {
     return
   fi
 
-  for client_id in ${client_ids}; do
+  printf '%s\n' "${client_ids}" | while IFS= read -r client_id; do
+    if [ -z "${client_id}" ]; then
+      continue
+    fi
+
     case "${client_id}" in
       core-*) ;;
       *) continue ;;

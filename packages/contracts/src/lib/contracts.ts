@@ -62,14 +62,39 @@ export interface PluginMetadata {
   description?: string;
 }
 
-export interface KeycloakClientProvisioningSpec {
+interface KeycloakClientProvisioningSpecBase {
   clientId: string;
-  realm: KeycloakRealmName;
   environment: CoreEnvironment;
-  useCase: 'host-shell' | CoreServiceUseCase;
-  flow: 'authorization_code_pkce' | 'client_credentials';
-  pluginId?: PluginId;
 }
+
+interface HostShellClientProvisioningSpec
+  extends KeycloakClientProvisioningSpecBase {
+  realm: 'core-users';
+  useCase: 'host-shell';
+  flow: 'authorization_code_pkce';
+  pluginId?: never;
+}
+
+interface CoreServiceClientProvisioningSpec
+  extends KeycloakClientProvisioningSpecBase {
+  realm: 'core-services';
+  useCase: Exclude<CoreServiceUseCase, 'plugin-admin'>;
+  flow: 'client_credentials';
+  pluginId?: never;
+}
+
+interface PluginAdminClientProvisioningSpec
+  extends KeycloakClientProvisioningSpecBase {
+  realm: 'core-services';
+  useCase: 'plugin-admin';
+  flow: 'client_credentials';
+  pluginId: PluginId;
+}
+
+export type KeycloakClientProvisioningSpec =
+  | HostShellClientProvisioningSpec
+  | CoreServiceClientProvisioningSpec
+  | PluginAdminClientProvisioningSpec;
 
 export function buildCoreUserClientId(environment: CoreEnvironment): string {
   return `core-${environment}-host-shell`;
