@@ -121,3 +121,11 @@ GitHub Actions runs a baseline Nx affected suite for pull requests and pushes to
 - `lint`, `test`, and `build` using `nx affected`
 
 This keeps CI focused on impacted projects while preserving workspace-wide quality gates.
+
+## Identity Integration Fixtures
+
+Issue #37 adds reusable auth/signing integration fixtures in
+`packages/policy/src/lib/auth-signing-integration-fixtures.ts`.
+
+- `buildAuthSigningIntegrationFixture()` builds canonical issuer/audience/expiry/signing-key rollover scenarios.
+- `evaluateAuthSigningIntegrationFixture()` executes those scenarios against policy validation for integration-style test coverage.
