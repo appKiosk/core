@@ -23,7 +23,6 @@ describe('buildTokenValidationPolicy', () => {
       issuer: 'https://iam.local/realms/core-users',
       audiences: ['host-shell', 'gateway'],
       clockSkewSeconds: 60,
-      requireExpiration: true,
     });
   });
 
@@ -36,14 +35,40 @@ describe('buildTokenValidationPolicy', () => {
     ).toThrow('Token validation policy issuer is required.');
   });
 
-  it('rejects disabling expiration requirements', () => {
+  it('rejects negative clock skew values', () => {
     expect(() =>
       buildTokenValidationPolicy({
         issuer: 'https://iam.local/realms/core-users',
         audiences: 'host-shell',
-        requireExpiration: false,
+        clockSkewSeconds: -1,
       }),
-    ).toThrow('Token validation policy must require expiry via the exp claim.');
+    ).toThrow(
+      'Token validation policy clockSkewSeconds must be a non-negative integer.',
+    );
+  });
+
+  it('rejects non-integer clock skew values', () => {
+    expect(() =>
+      buildTokenValidationPolicy({
+        issuer: 'https://iam.local/realms/core-users',
+        audiences: 'host-shell',
+        clockSkewSeconds: 0.5,
+      }),
+    ).toThrow(
+      'Token validation policy clockSkewSeconds must be a non-negative integer.',
+    );
+  });
+
+  it('rejects clock skew values above max bound', () => {
+    expect(() =>
+      buildTokenValidationPolicy({
+        issuer: 'https://iam.local/realms/core-users',
+        audiences: 'host-shell',
+        clockSkewSeconds: 301,
+      }),
+    ).toThrow(
+      'Token validation policy clockSkewSeconds must be less than or equal to 300.',
+    );
   });
 });
 
@@ -112,8 +137,22 @@ describe('validateTokenClaimsAgainstPolicy', () => {
 
     expect(result.valid).toBe(false);
     expect(result.errors).toContain(
-      'Token audience mismatch. Expected one of [host-shell, gateway], received ["registry"].',
+      'Token audience mismatch. Expected one of [host-shell, gateway], received raw aud claim ["registry"] (normalized ["registry"]).',
     );
+  });
+
+  it('reports missing aud claim', () => {
+    const result = validateTokenClaimsAgainstPolicy(
+      {
+        iss: 'https://iam.local/realms/core-users',
+        exp: 600,
+      },
+      policyDefinition,
+      570,
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Token is missing required aud claim.');
   });
 
   it('reports missing exp claim', () => {
@@ -128,6 +167,40 @@ describe('validateTokenClaimsAgainstPolicy', () => {
 
     expect(result.valid).toBe(false);
     expect(result.errors).toContain('Token is missing required exp claim.');
+  });
+
+  it('reports malformed exp string values', () => {
+    const result = validateTokenClaimsAgainstPolicy(
+      {
+        iss: 'https://iam.local/realms/core-users',
+        aud: 'host-shell',
+        exp: '600',
+      },
+      policyDefinition,
+      570,
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain(
+      'Token exp claim must be a finite numeric timestamp.',
+    );
+  });
+
+  it('reports non-finite exp values', () => {
+    const result = validateTokenClaimsAgainstPolicy(
+      {
+        iss: 'https://iam.local/realms/core-users',
+        aud: 'host-shell',
+        exp: Number.NaN,
+      },
+      policyDefinition,
+      570,
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain(
+      'Token exp claim must be a finite numeric timestamp.',
+    );
   });
 
   it('reports expired tokens outside configured clock skew', () => {

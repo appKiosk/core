@@ -2,14 +2,12 @@ export interface TokenValidationPolicyInput {
   issuer: string;
   audiences: string | string[];
   clockSkewSeconds?: number;
-  requireExpiration?: boolean;
 }
 
 export interface TokenValidationPolicy {
   issuer: string;
   audiences: string[];
   clockSkewSeconds: number;
-  requireExpiration: true;
 }
 
 export interface JwtLikeClaims {
@@ -95,20 +93,21 @@ function extractTokenAudiences(audienceClaim: unknown): string[] {
     .filter((value) => value.length > 0);
 }
 
+function formatAudienceClaim(audienceClaim: unknown): string {
+  if (audienceClaim === undefined || audienceClaim === null) {
+    return 'undefined';
+  }
+
+  return JSON.stringify(audienceClaim);
+}
+
 export function buildTokenValidationPolicy(
   input: TokenValidationPolicyInput,
 ): TokenValidationPolicy {
-  if (input.requireExpiration === false) {
-    throw new Error(
-      'Token validation policy must require expiry via the exp claim.',
-    );
-  }
-
   return {
     issuer: normalizeIssuer(input.issuer),
     audiences: normalizeAudiences(input.audiences),
     clockSkewSeconds: normalizeClockSkew(input.clockSkewSeconds),
-    requireExpiration: true,
   };
 }
 
@@ -131,9 +130,13 @@ export function validateTokenClaimsAgainstPolicy(
   );
 
   if (!hasMatchingAudience) {
-    errors.push(
-      `Token audience mismatch. Expected one of [${policy.audiences.join(', ')}], received ${JSON.stringify(tokenAudiences)}.`,
-    );
+    if (claims.aud === undefined || claims.aud === null) {
+      errors.push('Token is missing required aud claim.');
+    } else {
+      errors.push(
+        `Token audience mismatch. Expected one of [${policy.audiences.join(', ')}], received raw aud claim ${formatAudienceClaim(claims.aud)} (normalized ${JSON.stringify(tokenAudiences)}).`,
+      );
+    }
   }
 
   if (claims.exp === undefined || claims.exp === null) {
