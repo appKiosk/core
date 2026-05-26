@@ -40,6 +40,15 @@ The platform requires tenant-aware routing, user authentication, and service-to-
 - Plugin admin clients are confidential clients in the service realm and are unique per plugin per environment.
 - Secrets are injected at bootstrap from environment variables, never committed in realm JSON.
 
+## Token Validation Policy Baseline
+
+- Gateway and downstream identity validation enforce issuer, audience, and expiry requirements.
+- Issuer (`iss`) must exactly match the realm issuer URL configured for the trust boundary.
+- Audience (`aud`) must include at least one expected audience for the receiving service.
+- Expiry (`exp`) is mandatory for accepted tokens; tokens without `exp` are rejected.
+- Expiry checks allow bounded clock skew (default 60 seconds, maximum 300 seconds) to avoid false negatives during clock drift.
+- Tokens with `exp + clockSkew < now` are treated as expired and rejected.
+
 ## Service Credential Secret Storage and Rotation
 
 - Service credential secrets are environment-sourced and mapped by client ID:
