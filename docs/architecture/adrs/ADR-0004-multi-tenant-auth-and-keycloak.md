@@ -48,6 +48,9 @@ The platform requires tenant-aware routing, user authentication, and service-to-
 - Expiry (`exp`) is mandatory for accepted tokens; tokens without `exp` are rejected.
 - Expiry checks allow bounded clock skew (default 60 seconds, maximum 300 seconds) to avoid false negatives during clock drift.
 - Tokens with `exp + clockSkew < now` are treated as expired and rejected.
+- Token signing key validation uses key id (`kid`) policy with an active key and optional staged next key.
+- During configured rollover windows, validators accept both active and next key ids to support zero-downtime signer cutovers.
+- Before the rollover start timestamp only the active key is accepted; after rollover end only the next key is accepted.
 
 ## Service Credential Secret Storage and Rotation
 
