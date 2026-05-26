@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildTokenValidationPolicy,
+  getAcceptedTokenSigningKeyIds,
   policy,
   validateTokenClaimsAgainstPolicy,
 } from '../src/index.js';
@@ -23,6 +24,41 @@ describe('buildTokenValidationPolicy', () => {
       issuer: 'https://iam.local/realms/core-users',
       audiences: ['host-shell', 'gateway'],
       clockSkewSeconds: 60,
+    });
+
+    const policyDefinition = buildTokenValidationPolicy({
+      issuer: 'https://iam.local/realms/core-users',
+      audiences: ['host-shell', 'gateway', 'host-shell'],
+    });
+    expect('signingKeys' in policyDefinition).toBe(false);
+  });
+
+  it('normalizes signing key rollover policy fields', () => {
+    expect(
+      buildTokenValidationPolicy({
+        issuer: 'https://iam.local/realms/core-users',
+        audiences: 'host-shell',
+        signingKeys: {
+          activeKeyId: '  CORE-USERS-SIGNING-V1  ',
+          nextKeyId: 'Core-Users-Signing-V2',
+          dualKeyValidationWindow: {
+            startsAtEpochSeconds: 1_700_000_000,
+            endsAtEpochSeconds: 1_700_086_400,
+          },
+        },
+      }),
+    ).toEqual({
+      issuer: 'https://iam.local/realms/core-users',
+      audiences: ['host-shell'],
+      clockSkewSeconds: 60,
+      signingKeys: {
+        activeKeyId: 'core-users-signing-v1',
+        nextKeyId: 'core-users-signing-v2',
+        dualKeyValidationWindow: {
+          startsAtEpochSeconds: 1_700_000_000,
+          endsAtEpochSeconds: 1_700_086_400,
+        },
+      },
     });
   });
 
@@ -69,6 +105,111 @@ describe('buildTokenValidationPolicy', () => {
     ).toThrow(
       'Token validation policy clockSkewSeconds must be less than or equal to 300.',
     );
+  });
+
+  it('rejects signing key rollover policy with duplicate active and next key ids', () => {
+    expect(() =>
+      buildTokenValidationPolicy({
+        issuer: 'https://iam.local/realms/core-users',
+        audiences: 'host-shell',
+        signingKeys: {
+          activeKeyId: 'core-users-signing-v1',
+          nextKeyId: 'core-users-signing-v1',
+          dualKeyValidationWindow: {
+            startsAtEpochSeconds: 1,
+            endsAtEpochSeconds: 2,
+          },
+        },
+      }),
+    ).toThrow(
+      'Token validation policy signing key ids must be distinct between activeKeyId and nextKeyId.',
+    );
+  });
+
+  it('rejects signing key rollover policy when next key id is missing but rollover window is provided', () => {
+    expect(() =>
+      buildTokenValidationPolicy({
+        issuer: 'https://iam.local/realms/core-users',
+        audiences: 'host-shell',
+        signingKeys: {
+          activeKeyId: 'core-users-signing-v1',
+          dualKeyValidationWindow: {
+            startsAtEpochSeconds: 1,
+            endsAtEpochSeconds: 2,
+          },
+        },
+      }),
+    ).toThrow(
+      'Token validation policy signingKeys.dualKeyValidationWindow requires signingKeys.nextKeyId.',
+    );
+  });
+
+  it('rejects signing key rollover policy when next key id is provided without rollover window', () => {
+    expect(() =>
+      buildTokenValidationPolicy({
+        issuer: 'https://iam.local/realms/core-users',
+        audiences: 'host-shell',
+        signingKeys: {
+          activeKeyId: 'core-users-signing-v1',
+          nextKeyId: 'core-users-signing-v2',
+        },
+      }),
+    ).toThrow(
+      'Token validation policy signingKeys.nextKeyId requires signingKeys.dualKeyValidationWindow.',
+    );
+  });
+
+  it('rejects invalid rollover window bounds', () => {
+    expect(() =>
+      buildTokenValidationPolicy({
+        issuer: 'https://iam.local/realms/core-users',
+        audiences: 'host-shell',
+        signingKeys: {
+          activeKeyId: 'core-users-signing-v1',
+          nextKeyId: 'core-users-signing-v2',
+          dualKeyValidationWindow: {
+            startsAtEpochSeconds: 10,
+            endsAtEpochSeconds: 10,
+          },
+        },
+      }),
+    ).toThrow(
+      'Token validation policy dualKeyValidationWindow startsAtEpochSeconds must be less than endsAtEpochSeconds.',
+    );
+  });
+});
+
+describe('getAcceptedTokenSigningKeyIds', () => {
+  const rolloverPolicy = buildTokenValidationPolicy({
+    issuer: 'https://iam.local/realms/core-users',
+    audiences: 'host-shell',
+    signingKeys: {
+      activeKeyId: 'core-users-signing-v1',
+      nextKeyId: 'core-users-signing-v2',
+      dualKeyValidationWindow: {
+        startsAtEpochSeconds: 700,
+        endsAtEpochSeconds: 760,
+      },
+    },
+  });
+
+  it('returns only active key before rollover window starts', () => {
+    expect(getAcceptedTokenSigningKeyIds(rolloverPolicy, 699)).toEqual([
+      'core-users-signing-v1',
+    ]);
+  });
+
+  it('returns active and next key ids during rollover window', () => {
+    expect(getAcceptedTokenSigningKeyIds(rolloverPolicy, 730)).toEqual([
+      'core-users-signing-v1',
+      'core-users-signing-v2',
+    ]);
+  });
+
+  it('returns only next key after rollover window ends', () => {
+    expect(getAcceptedTokenSigningKeyIds(rolloverPolicy, 761)).toEqual([
+      'core-users-signing-v2',
+    ]);
   });
 });
 
@@ -216,5 +357,140 @@ describe('validateTokenClaimsAgainstPolicy', () => {
 
     expect(result.valid).toBe(false);
     expect(result.errors).toContain('Token is expired.');
+  });
+
+  it('requires token key id when signing key policy is configured', () => {
+    const keyPolicy = buildTokenValidationPolicy({
+      issuer: 'https://iam.local/realms/core-users',
+      audiences: 'host-shell',
+      signingKeys: {
+        activeKeyId: 'core-users-signing-v1',
+      },
+    });
+
+    const result = validateTokenClaimsAgainstPolicy(
+      {
+        iss: 'https://iam.local/realms/core-users',
+        aud: 'host-shell',
+        exp: 600,
+      },
+      keyPolicy,
+      570,
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain(
+      'Token is missing required key id (kid header).',
+    );
+  });
+
+  it('accepts tokenKeyId as preferred key id input', () => {
+    const keyPolicy = buildTokenValidationPolicy({
+      issuer: 'https://iam.local/realms/core-users',
+      audiences: 'host-shell',
+      signingKeys: {
+        activeKeyId: 'core-users-signing-v1',
+      },
+    });
+
+    const result = validateTokenClaimsAgainstPolicy(
+      {
+        iss: 'https://iam.local/realms/core-users',
+        aud: 'host-shell',
+        exp: 600,
+        tokenKeyId: 'core-users-signing-v1',
+      },
+      keyPolicy,
+      570,
+    );
+
+    expect(result).toEqual({ valid: true, errors: [] });
+  });
+
+  it('accepts active key before rollover starts', () => {
+    const keyPolicy = buildTokenValidationPolicy({
+      issuer: 'https://iam.local/realms/core-users',
+      audiences: 'host-shell',
+      signingKeys: {
+        activeKeyId: 'core-users-signing-v1',
+        nextKeyId: 'core-users-signing-v2',
+        dualKeyValidationWindow: {
+          startsAtEpochSeconds: 700,
+          endsAtEpochSeconds: 760,
+        },
+      },
+    });
+
+    const result = validateTokenClaimsAgainstPolicy(
+      {
+        iss: 'https://iam.local/realms/core-users',
+        aud: 'host-shell',
+        exp: 900,
+        kid: 'core-users-signing-v1',
+      },
+      keyPolicy,
+      650,
+    );
+
+    expect(result).toEqual({ valid: true, errors: [] });
+  });
+
+  it('accepts next key during dual key validation window', () => {
+    const keyPolicy = buildTokenValidationPolicy({
+      issuer: 'https://iam.local/realms/core-users',
+      audiences: 'host-shell',
+      signingKeys: {
+        activeKeyId: 'core-users-signing-v1',
+        nextKeyId: 'core-users-signing-v2',
+        dualKeyValidationWindow: {
+          startsAtEpochSeconds: 700,
+          endsAtEpochSeconds: 760,
+        },
+      },
+    });
+
+    const result = validateTokenClaimsAgainstPolicy(
+      {
+        iss: 'https://iam.local/realms/core-users',
+        aud: 'host-shell',
+        exp: 900,
+        kid: 'core-users-signing-v2',
+      },
+      keyPolicy,
+      730,
+    );
+
+    expect(result).toEqual({ valid: true, errors: [] });
+  });
+
+  it('rejects active key after rollover window closes', () => {
+    const keyPolicy = buildTokenValidationPolicy({
+      issuer: 'https://iam.local/realms/core-users',
+      audiences: 'host-shell',
+      signingKeys: {
+        activeKeyId: 'core-users-signing-v1',
+        nextKeyId: 'core-users-signing-v2',
+        dualKeyValidationWindow: {
+          startsAtEpochSeconds: 700,
+          endsAtEpochSeconds: 760,
+        },
+      },
+    });
+
+    const result = validateTokenClaimsAgainstPolicy(
+      {
+        iss: 'https://iam.local/realms/core-users',
+        aud: 'host-shell',
+        exp: 900,
+        kid: 'core-users-signing-v1',
+      },
+      keyPolicy,
+      761,
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain(
+      'Token signing key mismatch. Expected one of [core-users-signing-v2], received kid "core-users-signing-v1".',
+    );
   });
 });
