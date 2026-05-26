@@ -25,6 +25,12 @@ describe('buildTokenValidationPolicy', () => {
       audiences: ['host-shell', 'gateway'],
       clockSkewSeconds: 60,
     });
+
+    const policyDefinition = buildTokenValidationPolicy({
+      issuer: 'https://iam.local/realms/core-users',
+      audiences: ['host-shell', 'gateway', 'host-shell'],
+    });
+    expect('signingKeys' in policyDefinition).toBe(false);
   });
 
   it('normalizes signing key rollover policy fields', () => {
@@ -353,7 +359,7 @@ describe('validateTokenClaimsAgainstPolicy', () => {
     expect(result.errors).toContain('Token is expired.');
   });
 
-  it('requires kid when signing key policy is configured', () => {
+  it('requires token key id when signing key policy is configured', () => {
     const keyPolicy = buildTokenValidationPolicy({
       issuer: 'https://iam.local/realms/core-users',
       audiences: 'host-shell',
@@ -373,7 +379,32 @@ describe('validateTokenClaimsAgainstPolicy', () => {
     );
 
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain('Token is missing required kid claim.');
+    expect(result.errors).toContain(
+      'Token is missing required key id (kid header).',
+    );
+  });
+
+  it('accepts tokenKeyId as preferred key id input', () => {
+    const keyPolicy = buildTokenValidationPolicy({
+      issuer: 'https://iam.local/realms/core-users',
+      audiences: 'host-shell',
+      signingKeys: {
+        activeKeyId: 'core-users-signing-v1',
+      },
+    });
+
+    const result = validateTokenClaimsAgainstPolicy(
+      {
+        iss: 'https://iam.local/realms/core-users',
+        aud: 'host-shell',
+        exp: 600,
+        tokenKeyId: 'core-users-signing-v1',
+      },
+      keyPolicy,
+      570,
+    );
+
+    expect(result).toEqual({ valid: true, errors: [] });
   });
 
   it('accepts active key before rollover starts', () => {

@@ -38,6 +38,8 @@ export interface JwtLikeClaims {
   iss?: unknown;
   aud?: unknown;
   exp?: unknown;
+  tokenKeyId?: unknown;
+  // Backward-compatibility alias for callers already passing JWT header `kid` on this object.
   kid?: unknown;
 }
 
@@ -222,12 +224,19 @@ function formatAudienceClaim(audienceClaim: unknown): string {
 export function buildTokenValidationPolicy(
   input: TokenValidationPolicyInput,
 ): TokenValidationPolicy {
-  return {
+  const policy: TokenValidationPolicy = {
     issuer: normalizeIssuer(input.issuer),
     audiences: normalizeAudiences(input.audiences),
     clockSkewSeconds: normalizeClockSkew(input.clockSkewSeconds),
-    signingKeys: normalizeSigningKeyPolicy(input.signingKeys),
   };
+
+  const signingKeys = normalizeSigningKeyPolicy(input.signingKeys);
+
+  if (signingKeys) {
+    policy.signingKeys = signingKeys;
+  }
+
+  return policy;
 }
 
 export function getAcceptedTokenSigningKeyIds(
@@ -293,15 +302,17 @@ export function validateTokenClaimsAgainstPolicy(
   }
 
   if (policy.signingKeys) {
-    if (claims.kid === undefined || claims.kid === null) {
-      errors.push('Token is missing required kid claim.');
+    const tokenKeyId = claims.tokenKeyId ?? claims.kid;
+
+    if (tokenKeyId === undefined || tokenKeyId === null) {
+      errors.push('Token is missing required key id (kid header).');
     } else if (
-      typeof claims.kid !== 'string' ||
-      claims.kid.trim().length === 0
+      typeof tokenKeyId !== 'string' ||
+      tokenKeyId.trim().length === 0
     ) {
-      errors.push('Token kid claim must be a non-empty string.');
+      errors.push('Token key id (kid header) must be a non-empty string.');
     } else {
-      const normalizedTokenKid = claims.kid.trim().toLowerCase();
+      const normalizedTokenKid = tokenKeyId.trim().toLowerCase();
       const acceptedKeyIds = getAcceptedTokenSigningKeyIds(
         policy,
         nowEpochSeconds,
