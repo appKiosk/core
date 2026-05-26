@@ -11,10 +11,21 @@ export type CoreServiceUseCase =
 
 export type ServiceCredentialSecretStage = 'active' | 'next';
 
+export type PluginMetadataSigningKeyStage = 'active' | 'next';
+
+export type PluginMetadataSigningKeyMaterial = 'private' | 'public';
+
 export interface ServiceCredentialSecretReference {
   clientId: string;
   stage: ServiceCredentialSecretStage;
   envVarName: string;
+}
+
+export interface PluginMetadataSigningKeyReference {
+  keyId: string;
+  stage: PluginMetadataSigningKeyStage;
+  privateKeyEnvVarName: string;
+  publicKeyEnvVarName: string;
 }
 
 const CLIENT_ID_PATTERN = /^[a-z0-9-]+$/;
@@ -174,6 +185,73 @@ export function buildServiceCredentialSecretReferences(
       clientId: normalizedClientId,
       stage: 'next',
       envVarName: buildClientSecretEnvVarName(normalizedClientId, 'next'),
+    },
+  ];
+}
+
+export function buildPluginMetadataSigningKeyEnvVarName(
+  keyId: string,
+  material: PluginMetadataSigningKeyMaterial,
+  stage: PluginMetadataSigningKeyStage = 'active',
+): string {
+  const normalizedKeyId = normalizeClientId(keyId);
+
+  if (!CLIENT_ID_PATTERN.test(normalizedKeyId)) {
+    throw new ValidationContractsError(
+      'Signing key id must contain only letters, numbers, and hyphens.',
+      { keyId },
+    );
+  }
+
+  const suffix = normalizedKeyId
+    .replace(/-/g, '_')
+    .toUpperCase()
+    .replace(/[^A-Z0-9_]/g, '_');
+  const prefix =
+    material === 'private'
+      ? stage === 'next'
+        ? 'PLUGIN_METADATA_SIGNING_PRIVATE_KEY_NEXT_'
+        : 'PLUGIN_METADATA_SIGNING_PRIVATE_KEY_'
+      : stage === 'next'
+        ? 'PLUGIN_METADATA_SIGNING_PUBLIC_KEY_NEXT_'
+        : 'PLUGIN_METADATA_SIGNING_PUBLIC_KEY_';
+
+  return `${prefix}${suffix}`;
+}
+
+export function buildPluginMetadataSigningKeyReferences(
+  keyId: string,
+): PluginMetadataSigningKeyReference[] {
+  const normalizedKeyId = normalizeClientId(keyId);
+
+  return [
+    {
+      keyId: normalizedKeyId,
+      stage: 'active',
+      privateKeyEnvVarName: buildPluginMetadataSigningKeyEnvVarName(
+        normalizedKeyId,
+        'private',
+        'active',
+      ),
+      publicKeyEnvVarName: buildPluginMetadataSigningKeyEnvVarName(
+        normalizedKeyId,
+        'public',
+        'active',
+      ),
+    },
+    {
+      keyId: normalizedKeyId,
+      stage: 'next',
+      privateKeyEnvVarName: buildPluginMetadataSigningKeyEnvVarName(
+        normalizedKeyId,
+        'private',
+        'next',
+      ),
+      publicKeyEnvVarName: buildPluginMetadataSigningKeyEnvVarName(
+        normalizedKeyId,
+        'public',
+        'next',
+      ),
     },
   ];
 }

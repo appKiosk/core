@@ -4,6 +4,8 @@ import {
   buildClientSecretEnvVarName,
   buildCoreServiceClientId,
   buildCoreUserClientId,
+  buildPluginMetadataSigningKeyEnvVarName,
+  buildPluginMetadataSigningKeyReferences,
   buildPluginAdminClientId,
   buildServiceCredentialSecretReferences,
   ContractsError,
@@ -99,6 +101,58 @@ describe('contracts', () => {
   it('rejects invalid client ids in secret env var names', () => {
     expect(() => buildClientSecretEnvVarName('Core Local Gateway')).toThrow(
       'Client id must contain only lowercase letters, numbers, and hyphens.',
+    );
+  });
+
+  it('builds active and next signing key env var names', () => {
+    expect(
+      buildPluginMetadataSigningKeyEnvVarName(
+        'core-local-plugin-metadata-v1',
+        'private',
+      ),
+    ).toBe('PLUGIN_METADATA_SIGNING_PRIVATE_KEY_CORE_LOCAL_PLUGIN_METADATA_V1');
+    expect(
+      buildPluginMetadataSigningKeyEnvVarName(
+        'core-local-plugin-metadata-v1',
+        'public',
+        'next',
+      ),
+    ).toBe(
+      'PLUGIN_METADATA_SIGNING_PUBLIC_KEY_NEXT_CORE_LOCAL_PLUGIN_METADATA_V1',
+    );
+  });
+
+  it('builds plugin metadata signing key references for active and next stages', () => {
+    expect(
+      buildPluginMetadataSigningKeyReferences('core-local-plugin-metadata-v1'),
+    ).toEqual([
+      {
+        keyId: 'core-local-plugin-metadata-v1',
+        stage: 'active',
+        privateKeyEnvVarName:
+          'PLUGIN_METADATA_SIGNING_PRIVATE_KEY_CORE_LOCAL_PLUGIN_METADATA_V1',
+        publicKeyEnvVarName:
+          'PLUGIN_METADATA_SIGNING_PUBLIC_KEY_CORE_LOCAL_PLUGIN_METADATA_V1',
+      },
+      {
+        keyId: 'core-local-plugin-metadata-v1',
+        stage: 'next',
+        privateKeyEnvVarName:
+          'PLUGIN_METADATA_SIGNING_PRIVATE_KEY_NEXT_CORE_LOCAL_PLUGIN_METADATA_V1',
+        publicKeyEnvVarName:
+          'PLUGIN_METADATA_SIGNING_PUBLIC_KEY_NEXT_CORE_LOCAL_PLUGIN_METADATA_V1',
+      },
+    ]);
+  });
+
+  it('rejects invalid signing key ids in env var names', () => {
+    expect(() =>
+      buildPluginMetadataSigningKeyEnvVarName(
+        'Core Local Plugin Metadata V1',
+        'private',
+      ),
+    ).toThrow(
+      'Signing key id must contain only letters, numbers, and hyphens.',
     );
   });
 });

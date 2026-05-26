@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildPluginMetadataSigningKeyPlan,
   buildServiceCredentialSecretPlan,
+  generatePluginMetadataSigningKeyPair,
   buildRealmMigrationPlan,
   parseRealmMigrationFileName,
   validation,
@@ -155,6 +157,94 @@ describe('buildServiceCredentialSecretPlan', () => {
       buildServiceCredentialSecretPlan([{ clientId: 'core local gateway' }]),
     ).toThrow(
       'Invalid client id "core local gateway". Expected lowercase letters, numbers, and hyphens.',
+    );
+  });
+});
+
+describe('buildPluginMetadataSigningKeyPlan', () => {
+  it('builds active and next signing key env var names', () => {
+    expect(
+      buildPluginMetadataSigningKeyPlan([
+        { keyId: 'core-local-plugin-metadata-v1' },
+      ]),
+    ).toEqual([
+      {
+        keyId: 'core-local-plugin-metadata-v1',
+        algorithm: 'ed25519',
+        activePrivateKeyEnvVar:
+          'PLUGIN_METADATA_SIGNING_PRIVATE_KEY_CORE_LOCAL_PLUGIN_METADATA_V1',
+        activePublicKeyEnvVar:
+          'PLUGIN_METADATA_SIGNING_PUBLIC_KEY_CORE_LOCAL_PLUGIN_METADATA_V1',
+        nextPrivateKeyEnvVar:
+          'PLUGIN_METADATA_SIGNING_PRIVATE_KEY_NEXT_CORE_LOCAL_PLUGIN_METADATA_V1',
+        nextPublicKeyEnvVar:
+          'PLUGIN_METADATA_SIGNING_PUBLIC_KEY_NEXT_CORE_LOCAL_PLUGIN_METADATA_V1',
+      },
+    ]);
+  });
+
+  it('normalizes key ids before building plan entries', () => {
+    expect(
+      buildPluginMetadataSigningKeyPlan([
+        { keyId: '  CORE-LOCAL-PLUGIN-METADATA-V1  ' },
+      ]),
+    ).toEqual([
+      {
+        keyId: 'core-local-plugin-metadata-v1',
+        algorithm: 'ed25519',
+        activePrivateKeyEnvVar:
+          'PLUGIN_METADATA_SIGNING_PRIVATE_KEY_CORE_LOCAL_PLUGIN_METADATA_V1',
+        activePublicKeyEnvVar:
+          'PLUGIN_METADATA_SIGNING_PUBLIC_KEY_CORE_LOCAL_PLUGIN_METADATA_V1',
+        nextPrivateKeyEnvVar:
+          'PLUGIN_METADATA_SIGNING_PRIVATE_KEY_NEXT_CORE_LOCAL_PLUGIN_METADATA_V1',
+        nextPublicKeyEnvVar:
+          'PLUGIN_METADATA_SIGNING_PUBLIC_KEY_NEXT_CORE_LOCAL_PLUGIN_METADATA_V1',
+      },
+    ]);
+  });
+
+  it('rejects duplicate normalized key ids', () => {
+    expect(() =>
+      buildPluginMetadataSigningKeyPlan([
+        { keyId: 'core-local-plugin-metadata-v1' },
+        { keyId: 'CORE-LOCAL-PLUGIN-METADATA-V1' },
+      ]),
+    ).toThrow(
+      'Duplicate plugin metadata signing key id detected: "core-local-plugin-metadata-v1".',
+    );
+  });
+
+  it('rejects invalid key ids', () => {
+    expect(() =>
+      buildPluginMetadataSigningKeyPlan([
+        { keyId: 'core local plugin metadata v1' },
+      ]),
+    ).toThrow(
+      'Invalid signing key id "core local plugin metadata v1". Expected letters, numbers, and hyphens.',
+    );
+  });
+});
+
+describe('generatePluginMetadataSigningKeyPair', () => {
+  it('generates an ed25519 key pair as PEM strings', () => {
+    const keyPair = generatePluginMetadataSigningKeyPair({
+      keyId: 'core-local-plugin-metadata-v1',
+    });
+
+    expect(keyPair.keyId).toBe('core-local-plugin-metadata-v1');
+    expect(keyPair.algorithm).toBe('ed25519');
+    expect(keyPair.privateKeyPem).toContain('BEGIN PRIVATE KEY');
+    expect(keyPair.publicKeyPem).toContain('BEGIN PUBLIC KEY');
+  });
+
+  it('rejects invalid key ids during key generation', () => {
+    expect(() =>
+      generatePluginMetadataSigningKeyPair({
+        keyId: 'Core Local Plugin Metadata V1',
+      }),
+    ).toThrow(
+      'Invalid signing key id "Core Local Plugin Metadata V1". Expected letters, numbers, and hyphens.',
     );
   });
 });

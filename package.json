@@ -18,6 +18,8 @@
     "dev:keycloak:logs": "podman-compose -f docker-compose.yml logs -f keycloak",
     "check:lockfile-sync": "npx --yes npm@10.8.2 install --package-lock-only --ignore-scripts --no-audit --no-fund && git diff --exit-code -- package-lock.json",
     "check:format-branch": "base=$(git merge-base remotes/origin/main HEAD) && npm exec nx -- format:check --base=\"$base\" --head=HEAD",
+    "check:format-ci-parity": "base=$(git merge-base remotes/origin/main HEAD) && head=$(git rev-parse HEAD) && npm exec nx -- format:check --base=\"$base\" --head=\"$head\"",
+    "check:format-staged": "files=$(git diff --cached --name-only --diff-filter=ACMR | tr '\n' ',' | sed 's/,$//') && if [ -n \"$files\" ]; then npm exec nx -- format:check --files=\"$files\"; else echo 'No staged files to format-check.'; fi",
     "prepare": "simple-git-hooks"
   },
   "private": true,
@@ -40,7 +42,8 @@
     "vitest": "^3.2.4"
   },
   "simple-git-hooks": {
-    "pre-commit": "npm run check:lockfile-sync && npm run check:format-branch"
+    "pre-commit": "npm run check:lockfile-sync && npm run check:format-staged",
+    "pre-push": "npm run check:format-ci-parity"
   },
   "workspaces": [
     "packages/*"
