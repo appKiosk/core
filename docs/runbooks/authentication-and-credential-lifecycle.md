@@ -123,7 +123,7 @@ Run these checks whenever auth-related realm, audience, issuer, or signing confi
 1. Execute policy tests:
 
 ```bash
-npm exec nx run policy:test
+npm exec nx run @org/policy:test
 ```
 
 2. Confirm auth/signing fixture scenarios remain green:
@@ -174,7 +174,7 @@ For any authentication, credential, or signing change:
 
 1. Update migration or configuration source of truth.
 2. Apply in local/dev first.
-3. Run impacted validation (`npm exec nx run policy:test` minimum for policy-impacting changes).
+3. Run impacted validation (`npm exec nx run @org/policy:test` minimum for policy-impacting changes).
 4. Document rollout/rollback notes in the change record.
 5. Confirm no secrets were committed.
 
