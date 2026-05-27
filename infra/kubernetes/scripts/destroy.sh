@@ -9,4 +9,14 @@ if [[ ! -d "${OVERLAY_DIR}" ]]; then
   exit 1
 fi
 
+if ! command -v kubectl >/dev/null 2>&1; then
+  echo "kubectl is required. Install kubectl and rerun." >&2
+  exit 1
+fi
+
+if ! kubectl config current-context >/dev/null 2>&1; then
+  echo "kubectl context is not configured. Run 'kubectl config use-context <context>' and rerun." >&2
+  exit 1
+fi
+
 kubectl delete -k "${OVERLAY_DIR}" --ignore-not-found=true
