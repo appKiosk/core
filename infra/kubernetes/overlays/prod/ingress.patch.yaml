@@ -6,6 +6,15 @@ metadata:
 spec:
   rules:
     - host: core.appkiosk.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: core-gateway
+                port:
+                  name: http
   tls:
     - hosts:
         - core.appkiosk.example

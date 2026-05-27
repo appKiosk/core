@@ -9,5 +9,7 @@ resources:
   - ingress/core-gateway.yaml
   - networkpolicies/core-services-default-deny.yaml
   - networkpolicies/plugin-services-default-deny.yaml
+  - networkpolicies/allow-core-services-dns-egress.yaml
+  - networkpolicies/allow-plugin-services-dns-egress.yaml
   - networkpolicies/allow-gateway-from-ingress.yaml
   - networkpolicies/allow-core-to-plugin-egress.yaml
