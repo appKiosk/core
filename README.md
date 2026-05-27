@@ -93,7 +93,24 @@ The following Nx workspace packages are scaffolded under `packages/`:
 - C4 Container: [docs/architecture/c4-container.md](docs/architecture/c4-container.md)
 - ADR index: [docs/architecture/adrs/README.md](docs/architecture/adrs/README.md)
 - Auth/Credential runbook: [docs/runbooks/authentication-and-credential-lifecycle.md](docs/runbooks/authentication-and-credential-lifecycle.md)
+- Kubernetes baseline runbook: [docs/runbooks/kubernetes-baseline-lifecycle.md](docs/runbooks/kubernetes-baseline-lifecycle.md)
 - Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Kubernetes Baseline IaC
+
+Issue #39 adds Kubernetes baseline resources under `infra/kubernetes` with overlays for `dev`, `stage`, and `prod`.
+
+- Render/apply resources with kustomize overlays.
+- Enforce namespace and service boundaries with network policies.
+- Validate schemas and policy guardrails in CI and locally.
+
+Key commands:
+
+```bash
+npm run infra:k8s:validate
+npm run infra:k8s:plan -- dev
+npm run infra:k8s:apply -- dev
+```
 
 ## Quality Baseline
 

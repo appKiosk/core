@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespaces/core-system.yaml
+  - namespaces/core-services.yaml
+  - namespaces/plugin-services.yaml
+  - services/core-gateway.yaml
+  - ingress/core-gateway.yaml
+  - networkpolicies/core-services-default-deny.yaml
+  - networkpolicies/plugin-services-default-deny.yaml
+  - networkpolicies/allow-gateway-from-ingress.yaml
+  - networkpolicies/allow-core-to-plugin-egress.yaml

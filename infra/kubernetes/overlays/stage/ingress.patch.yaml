@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: core-gateway
+  namespace: core-services
+spec:
+  rules:
+    - host: stage.core.appkiosk.example
+  tls:
+    - hosts:
+        - stage.core.appkiosk.example
+      secretName: stage-core-gateway-tls
