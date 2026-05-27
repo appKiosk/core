@@ -94,6 +94,7 @@ The following Nx workspace packages are scaffolded under `packages/`:
 - ADR index: [docs/architecture/adrs/README.md](docs/architecture/adrs/README.md)
 - Auth/Credential runbook: [docs/runbooks/authentication-and-credential-lifecycle.md](docs/runbooks/authentication-and-credential-lifecycle.md)
 - Kubernetes baseline runbook: [docs/runbooks/kubernetes-baseline-lifecycle.md](docs/runbooks/kubernetes-baseline-lifecycle.md)
+- Helm + Knative migration plan: [docs/runbooks/helm-knative-migration-plan.md](docs/runbooks/helm-knative-migration-plan.md)
 - Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Kubernetes Baseline IaC
