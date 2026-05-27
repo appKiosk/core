@@ -6,10 +6,12 @@ This runbook documents how to bootstrap and operate Kubernetes baseline resource
 
 The baseline covers:
 
-- Kubernetes namespaces (`core-system`, `core-services`, `plugin-services`)
+- Kubernetes namespaces (`core-system`, `core-services`)
 - Gateway ingress and service boundaries
-- Network policy boundaries between core and plugin service zones
+- Network policy boundaries for core-owned services
 - Environment overlays for `dev`, `stage`, and `prod`
+
+Plugin service namespaces and policies are owned by plugin repositories and are intentionally excluded from this core baseline.
 
 All manifests are declared in-repo under `infra/kubernetes` and are applied through kustomize overlays.
 
@@ -55,7 +57,6 @@ The script performs:
 
 - `kubectl kustomize` render for each overlay
 - strict `kubeconform` validation
-- `kubectl apply --dry-run=client` validation
 - policy assertions that required ingress and default-deny policies exist
 
 ## Rollback and Destroy
@@ -83,9 +84,8 @@ If apply fails part-way:
 4. Verify namespace and policy posture:
 
 ```bash
-kubectl get ns core-system core-services plugin-services
+kubectl get ns core-system core-services
 kubectl -n core-services get ingress,svc,networkpolicy
-kubectl -n plugin-services get networkpolicy
 ```
 
 ## Manual Exceptions

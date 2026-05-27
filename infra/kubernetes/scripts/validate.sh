@@ -29,13 +29,13 @@ for env in dev stage prod; do
     -ignore-missing-schemas \
     "${rendered}"
 
-  if ! grep -q "name: default-deny" "${rendered}"; then
-    echo "Policy check failed (${env}): missing default-deny NetworkPolicy." >&2
+  if ! grep -q "name: default-deny" "${rendered}" || ! grep -q "namespace: core-services" "${rendered}"; then
+    echo "Policy check failed (${env}): missing core-services default-deny NetworkPolicy." >&2
     exit 1
   fi
 
-  if ! grep -q "kind: Ingress" "${rendered}"; then
-    echo "Policy check failed (${env}): missing Ingress resource." >&2
+  if ! grep -q "kind: Ingress" "${rendered}" || ! grep -q "name: core-gateway" "${rendered}"; then
+    echo "Policy check failed (${env}): missing core-gateway Ingress resource." >&2
     exit 1
   fi
 

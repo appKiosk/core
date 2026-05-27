@@ -15,13 +15,13 @@ Issue #39 introduces a versioned Kubernetes baseline for namespace boundaries, i
 - Namespaces:
   - `core-system`
   - `core-services`
-  - `plugin-services`
 - Ingress:
   - `core-gateway` ingress routed to `core-services/core-gateway` service.
 - Network policies:
-  - default deny for `core-services` and `plugin-services`
+  - default deny for `core-services`
   - gateway ingress allowed from `ingress-nginx` namespace only
-  - core service egress to plugin services on TCP/8080 only
+
+Plugin namespace policies are intentionally managed in plugin repositories, not in this core baseline.
 
 ## Commands
 
