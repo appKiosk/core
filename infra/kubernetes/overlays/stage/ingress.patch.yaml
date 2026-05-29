@@ -1,0 +1,9 @@
+- op: replace
+  path: /spec/rules/0/host
+  value: stage.core.appkiosk.example
+- op: replace
+  path: /spec/tls/0/hosts/0
+  value: stage.core.appkiosk.example
+- op: replace
+  path: /spec/tls/0/secretName
+  value: stage-core-gateway-tls

@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: core-gateway
+  namespace: core-services
+  labels:
+    app.kubernetes.io/name: core-gateway
+    app.kubernetes.io/part-of: appkiosk-core
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: core.example.invalid
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: core-gateway
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - core.example.invalid
+      secretName: core-gateway-tls
