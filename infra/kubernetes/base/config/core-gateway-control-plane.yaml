@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-gateway-control-plane-config
+  namespace: core-system
+  labels:
+    app.kubernetes.io/name: core-gateway
+    app.kubernetes.io/part-of: appkiosk-core
+    app.kubernetes.io/component: control-plane
+data:
+  environment: base
+  gatewayControllerName: gateway.envoyproxy.io/gatewayclass-controller
+  issuerAudience: core-host-shell
+  userTokenIssuer: https://keycloak.core.appkiosk.example/realms/core-users
+  serviceTokenIssuer: https://keycloak.core.appkiosk.example/realms/core-services
+  routeResolutionEndpoint: http://registry.core-services.svc.cluster.local/routes/resolve
+  policyDecisionEndpoint: http://policy.core-services.svc.cluster.local/policy/evaluate
+  auditSinkEndpoint: http://audit.core-services.svc.cluster.local/events

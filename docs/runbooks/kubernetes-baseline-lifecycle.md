@@ -1,6 +1,6 @@
 # Kubernetes Baseline Provisioning, Rollback, and Recovery
 
-This runbook documents how to bootstrap and operate Kubernetes baseline resources introduced in issue #39.
+This runbook documents how to bootstrap and operate Kubernetes baseline resources introduced in issue #39 and extended in issue #40.
 
 ## Scope
 
@@ -8,6 +8,8 @@ The baseline covers:
 
 - Kubernetes namespaces (`core-system`, `core-services`)
 - Gateway ingress and service boundaries
+- Gateway API control-plane resources (`GatewayClass`, `Gateway`, `HTTPRoute`)
+- Declarative gateway control-plane and runtime data-plane configuration (`ConfigMap` resources)
 - Network policy boundaries for core-owned services
 - Environment overlays for `dev`, `stage`, and `prod`
 
@@ -44,6 +46,7 @@ Repeat the final three commands with `stage` and `prod` as needed.
 - `kubectl apply -k` is declarative and idempotent for re-application.
 - `kubectl diff -k` provides drift/plan output before apply.
 - Environment-specific values are isolated in `infra/kubernetes/overlays/<env>`.
+- Gateway hostnames/TLS and environment-specific identity issuer settings are promoted through overlay patches.
 
 ## Validation and Policy Checks
 
@@ -57,7 +60,7 @@ The script performs:
 
 - `kubectl kustomize` render for each overlay
 - strict `kubeconform` validation
-- policy assertions that required ingress and default-deny policies exist
+- policy assertions that required ingress/default-deny controls and required gateway control/data-plane resources exist
 
 ## Rollback and Destroy
 
@@ -73,6 +76,11 @@ For rollback after an invalid change:
 2. Re-run `./infra/kubernetes/scripts/validate.sh`.
 3. Re-apply the known-good overlay with `./infra/kubernetes/scripts/apply.sh <env>`.
 4. Confirm network policies and ingress state with `kubectl get` and `kubectl describe`.
+5. Confirm gateway baseline control/data-plane resources:
+   ```bash
+   kubectl -n core-services get gateway,httproute,configmap core-gateway-runtime-config
+   kubectl -n core-system get configmap core-gateway-control-plane-config
+   ```
 
 ## Operational Recovery
 

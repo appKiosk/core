@@ -17,6 +17,17 @@ fi
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "${tmp_dir}"' EXIT
 
+require_rendered_match() {
+  local rendered_file="$1"
+  local check_pattern="$2"
+  local error_message="$3"
+
+  if ! grep -Eq "${check_pattern}" "${rendered_file}"; then
+    echo "${error_message}" >&2
+    exit 1
+  fi
+}
+
 for env in dev stage prod; do
   overlay="${ROOT_DIR}/infra/kubernetes/overlays/${env}"
   rendered="${tmp_dir}/${env}.yaml"
@@ -29,10 +40,12 @@ for env in dev stage prod; do
     -ignore-missing-schemas \
     "${rendered}"
 
-  if ! grep -q "name: default-deny" "${rendered}" || ! grep -q "namespace: core-services" "${rendered}"; then
-    echo "Policy check failed (${env}): missing core-services default-deny NetworkPolicy." >&2
-    exit 1
-  fi
+  require_rendered_match "${rendered}" "^[[:space:]]*name:[[:space:]]*default-deny$" "Policy check failed (${env}): missing core-services default-deny NetworkPolicy."
+  require_rendered_match "${rendered}" "^[[:space:]]*name:[[:space:]]*core-envoy-gateway$" "Policy check failed (${env}): missing GatewayClass core-envoy-gateway."
+  require_rendered_match "${rendered}" "^[[:space:]]*name:[[:space:]]*core-gateway-control-plane$" "Policy check failed (${env}): missing control-plane HTTPRoute."
+  require_rendered_match "${rendered}" "^[[:space:]]*name:[[:space:]]*core-plugin-runtime$" "Policy check failed (${env}): missing runtime HTTPRoute."
+  require_rendered_match "${rendered}" "^[[:space:]]*name:[[:space:]]*core-gateway-control-plane-config$" "Policy check failed (${env}): missing control-plane ConfigMap."
+  require_rendered_match "${rendered}" "^[[:space:]]*name:[[:space:]]*core-gateway-runtime-config$" "Policy check failed (${env}): missing runtime ConfigMap."
 
   if ! grep -q "kind: Ingress" "${rendered}" || ! grep -q "name: core-gateway" "${rendered}"; then
     echo "Policy check failed (${env}): missing core-gateway Ingress resource." >&2

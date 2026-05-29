@@ -1,0 +1,6 @@
+- op: replace
+  path: /data/environment
+  value: stage
+- op: replace
+  path: /data/externalHostname
+  value: stage.core.appkiosk.example
