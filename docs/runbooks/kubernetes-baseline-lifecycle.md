@@ -76,13 +76,11 @@ For rollback after an invalid change:
 2. Re-run `./infra/kubernetes/scripts/validate.sh`.
 3. Re-apply the known-good overlay with `./infra/kubernetes/scripts/apply.sh <env>`.
 4. Confirm network policies and ingress state with `kubectl get` and `kubectl describe`.
-
 5. Confirm gateway baseline control/data-plane resources:
-
-```bash
-kubectl -n core-services get gateway,httproute,configmap core-gateway-runtime-config
-kubectl -n core-system get configmap core-gateway-control-plane-config
-```
+   ```bash
+   kubectl -n core-services get gateway,httproute,configmap core-gateway-runtime-config
+   kubectl -n core-system get configmap core-gateway-control-plane-config
+   ```
 
 ## Operational Recovery
 
