@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-gateway-runtime-config
+  namespace: core-services
+  labels:
+    app.kubernetes.io/name: core-gateway
+    app.kubernetes.io/part-of: appkiosk-core
+    app.kubernetes.io/component: data-plane
+data:
+  environment: base
+  externalHostname: core.example.invalid
+  tenantPathTemplate: /:tenantId/plugins/:pluginSlug
+  routePrefix: /plugins/
+  launchApiPrefix: /api/plugins/launch/
+  requestTimeoutMs: '15000'
+  retryAttempts: '2'
+  rateLimitPerTenantRps: '100'
+  rateLimitPerPluginRps: '50'
+  tracePropagation: w3c

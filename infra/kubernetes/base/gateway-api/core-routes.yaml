@@ -1,0 +1,72 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: core-gateway-control-plane
+  namespace: core-services
+  labels:
+    app.kubernetes.io/name: core-gateway
+    app.kubernetes.io/part-of: appkiosk-core
+    app.kubernetes.io/component: control-plane
+spec:
+  parentRefs:
+    - name: core-gateway
+      sectionName: https
+    - name: core-gateway
+      sectionName: http
+  hostnames:
+    - core.example.invalid
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /internal/control-plane/
+      backendRefs:
+        - name: core-gateway
+          port: 80
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /internal/policy/
+      backendRefs:
+        - name: core-gateway
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: core-plugin-runtime
+  namespace: core-services
+  labels:
+    app.kubernetes.io/name: core-gateway
+    app.kubernetes.io/part-of: appkiosk-core
+    app.kubernetes.io/component: data-plane
+spec:
+  parentRefs:
+    - name: core-gateway
+      sectionName: https
+    - name: core-gateway
+      sectionName: http
+  hostnames:
+    - core.example.invalid
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /plugins/
+      backendRefs:
+        - name: core-gateway
+          port: 80
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/plugins/launch/
+      backendRefs:
+        - name: core-gateway
+          port: 80
+    - matches:
+        - path:
+            type: Exact
+            value: /healthz
+      backendRefs:
+        - name: core-gateway
+          port: 80

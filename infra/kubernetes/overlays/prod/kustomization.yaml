@@ -17,3 +17,36 @@ patches:
       kind: Ingress
       name: core-gateway
       namespace: core-services
+  - path: gateway.patch.yaml
+    target:
+      group: gateway.networking.k8s.io
+      version: v1
+      kind: Gateway
+      name: core-gateway
+      namespace: core-services
+  - path: control-plane-config.patch.yaml
+    target:
+      version: v1
+      kind: ConfigMap
+      name: core-gateway-control-plane-config
+      namespace: core-system
+  - path: runtime-config.patch.yaml
+    target:
+      version: v1
+      kind: ConfigMap
+      name: core-gateway-runtime-config
+      namespace: core-services
+  - path: control-plane-route.patch.yaml
+    target:
+      group: gateway.networking.k8s.io
+      version: v1
+      kind: HTTPRoute
+      name: core-gateway-control-plane
+      namespace: core-services
+  - path: runtime-route.patch.yaml
+    target:
+      group: gateway.networking.k8s.io
+      version: v1
+      kind: HTTPRoute
+      name: core-plugin-runtime
+      namespace: core-services

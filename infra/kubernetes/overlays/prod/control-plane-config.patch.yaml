@@ -1,0 +1,9 @@
+- op: replace
+  path: /data/environment
+  value: prod
+- op: replace
+  path: /data/userTokenIssuer
+  value: https://keycloak.core.appkiosk.example/realms/core-users
+- op: replace
+  path: /data/serviceTokenIssuer
+  value: https://keycloak.core.appkiosk.example/realms/core-services

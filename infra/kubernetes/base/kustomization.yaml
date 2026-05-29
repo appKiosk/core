@@ -6,6 +6,11 @@ resources:
   - namespaces/core-services.yaml
   - services/core-gateway.yaml
   - ingress/core-gateway.yaml
+  - gateway-api/core-gatewayclass.yaml
+  - gateway-api/core-gateway.yaml
+  - gateway-api/core-routes.yaml
+  - config/core-gateway-control-plane.yaml
+  - config/core-gateway-runtime.yaml
   - networkpolicies/core-services-default-deny.yaml
   - networkpolicies/allow-core-services-dns-egress.yaml
   - networkpolicies/allow-gateway-from-ingress.yaml
